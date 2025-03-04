@@ -1,36 +1,44 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { ChevronDown } from 'lucide-react';
 
 interface SelectorProps {
   label: string;
   options: string[];
   className?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  placeholder?: string;
 }
 
-export const Selector = ({ label, options, className }: SelectorProps) => {
+export const Selector = ({ 
+  label, 
+  options, 
+  className, 
+  value, 
+  onChange,
+  placeholder = "Select..." 
+}: SelectorProps) => {
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    onChange?.(e.target.value);
+  };
+
   return (
     <div className={cn("relative", className)}>
-      <select className="fleet-selector appearance-none pr-8">
+      <select 
+        className="fleet-selector appearance-none pr-8 w-full"
+        value={value}
+        onChange={handleChange}
+        aria-label={label}
+      >
+        <option value="" disabled>{placeholder}</option>
         {options.map((option, index) => (
-          <option key={index}>{option}</option>
+          <option key={index} value={option}>{option}</option>
         ))}
       </select>
       <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4 text-gray-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
+        <ChevronDown className="h-4 w-4 text-gray-500" />
       </div>
     </div>
   );

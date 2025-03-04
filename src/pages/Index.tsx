@@ -6,6 +6,7 @@ import { LineChart } from '@/components/dashboard/LineChart';
 import { AlertCard } from '@/components/dashboard/AlertCard';
 import { Navbar } from '@/components/dashboard/Navbar';
 import { Selector } from '@/components/dashboard/Selector';
+import { FilterPanel } from '@/components/dashboard/FilterPanel';
 import { AlertTriangle, Clock, Fuel, TrendingUp } from 'lucide-react';
 import { DonutChart } from '@/components/dashboard/DonutChart';
 
@@ -31,6 +32,9 @@ const Dashboard = () => {
       <Navbar />
       
       <main className="container mx-auto px-4 py-6">
+        {/* Add Filter Panel */}
+        <FilterPanel />
+        
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {/* Fleet Status Card */}
           <DashboardCard className="col-span-1" delay="100">
