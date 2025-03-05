@@ -1,5 +1,5 @@
-
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 import { CircularProgress } from '@/components/dashboard/CircularProgress';
 import { LineChart } from '@/components/dashboard/LineChart';
@@ -7,15 +7,13 @@ import { AlertCard } from '@/components/dashboard/AlertCard';
 import { Navbar } from '@/components/dashboard/Navbar';
 import { Selector } from '@/components/dashboard/Selector';
 import { FilterPanel } from '@/components/dashboard/FilterPanel';
-import { DiagramDetailsPopup, DiagramDetails } from '@/components/dashboard/DiagramDetailsPopup';
 import { AlertTriangle, Clock, Fuel, TrendingUp } from 'lucide-react';
 import { DonutChart } from '@/components/dashboard/DonutChart';
 import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const [popupOpen, setPopupOpen] = useState(false);
-  const [popupDetails, setPopupDetails] = useState<DiagramDetails | null>(null);
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,23 +31,21 @@ const Dashboard = () => {
   const distanceLabels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'];
 
   const handleDiagramClick = (type: 'donut' | 'line' | 'bar' | 'progress', title: string, data: any, description?: string) => {
-    setPopupDetails({
-      type,
-      title,
-      data,
-      description
-    });
-    setPopupOpen(true);
+    const params = new URLSearchParams();
+    params.set('type', type);
+    params.set('title', title);
+    params.set('data', JSON.stringify(data));
+    if (description) {
+      params.set('description', description);
+    }
+    
+    navigate(`/diagram-details?${params.toString()}`);
+    
     toast({
-      title: "Diagram details",
-      description: `Showing detailed information for ${title}`,
+      title: "Opening diagram details",
+      description: `Viewing detailed information for ${title}`,
       duration: 3000,
     });
-  };
-
-  const closePopup = () => {
-    setPopupOpen(false);
-    setPopupDetails(null);
   };
 
   return (
@@ -276,13 +272,6 @@ const Dashboard = () => {
           />
         </div>
       </main>
-
-      {/* Details Popup */}
-      <DiagramDetailsPopup 
-        isOpen={popupOpen}
-        onClose={closePopup}
-        details={popupDetails}
-      />
     </div>
   );
 };
