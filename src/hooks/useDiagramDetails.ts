@@ -1,7 +1,9 @@
 
-import { Toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
-export const useDiagramDetails = (toast: Toast) => {
+export const useDiagramDetails = () => {
+  const { toast } = useToast();
+  
   const handleDiagramClick = (type: 'donut' | 'line' | 'bar' | 'progress', title: string, data: any, description?: string) => {
     const params = new URLSearchParams();
     params.set('type', type);
