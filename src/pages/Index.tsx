@@ -7,11 +7,16 @@ import { AlertCard } from '@/components/dashboard/AlertCard';
 import { Navbar } from '@/components/dashboard/Navbar';
 import { Selector } from '@/components/dashboard/Selector';
 import { FilterPanel } from '@/components/dashboard/FilterPanel';
+import { DiagramDetailsPopup, DiagramDetails } from '@/components/dashboard/DiagramDetailsPopup';
 import { AlertTriangle, Clock, Fuel, TrendingUp } from 'lucide-react';
 import { DonutChart } from '@/components/dashboard/DonutChart';
+import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [popupDetails, setPopupDetails] = useState<DiagramDetails | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -26,6 +31,26 @@ const Dashboard = () => {
 
   const distanceData = [1000, 1200, 1100, 1800, 3000, 2700, 4200, 3800, 3200, 4000, 3000, 2500, 3500, 3000];
   const distanceLabels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'];
+
+  const handleDiagramClick = (type: 'donut' | 'line' | 'bar' | 'progress', title: string, data: any, description?: string) => {
+    setPopupDetails({
+      type,
+      title,
+      data,
+      description
+    });
+    setPopupOpen(true);
+    toast({
+      title: "Diagram details",
+      description: `Showing detailed information for ${title}`,
+      duration: 3000,
+    });
+  };
+
+  const closePopup = () => {
+    setPopupOpen(false);
+    setPopupDetails(null);
+  };
 
   return (
     <div className="min-h-screen bg-fleet-gray">
@@ -47,7 +72,10 @@ const Dashboard = () => {
                 />
               </div>
               
-              <div className="flex items-center justify-center">
+              <div 
+                className="flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => handleDiagramClick('donut', 'RTL Fleet Status', fleetStatus, 'This chart shows the current status of all vehicles in your fleet, categorized by their operational state.')}
+              >
                 <div className="w-32 h-32 relative mb-4">
                   <img 
                     src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='%2318C29C' d='M50 0A50 50 0 1 1 50 100A50 50 0 0 1 50 0'/%3E%3Cpath fill='%23FFB400' d='M50 0A50 50 0 0 1 100 50L50 50Z'/%3E%3Cpath fill='%23FF5A5F' d='M100 50A50 50 0 0 1 85 85L50 50Z'/%3E%3Cpath fill='%234A5568' d='M85 85A50 50 0 0 1 50 100L50 50Z'/%3E%3C/svg%3E" 
@@ -93,7 +121,10 @@ const Dashboard = () => {
                 />
               </div>
               
-              <div className="flex-1 flex items-center justify-center">
+              <div 
+                className="flex-1 flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => handleDiagramClick('progress', 'Fleet Utilization', 80, 'This metric represents how effectively your fleet is being utilized. A higher percentage indicates better resource management.')}
+              >
                 <CircularProgress value={80} size={150} color="#2A6ED2">
                   <div className="text-center">
                     <div className="text-4xl font-bold">80%</div>
@@ -125,7 +156,10 @@ const Dashboard = () => {
                 <div className="text-sm font-medium text-fleet-dark-gray">Avg. Travelled distance per vehicle = 119 km</div>
               </div>
               
-              <div className="flex-1">
+              <div 
+                className="flex-1 cursor-pointer hover:opacity-90 transition-opacity"
+                onClick={() => handleDiagramClick('line', 'Travelled Distance', distanceData, 'This chart visualizes the distance travelled by your fleet over time, helping you identify trends and peak usage periods.')}
+              >
                 <LineChart 
                   data={distanceData} 
                   labels={distanceLabels}
@@ -154,7 +188,10 @@ const Dashboard = () => {
               </div>
               
               <div className="flex-1 flex flex-col justify-center space-y-6">
-                <div className="text-center">
+                <div 
+                  className="text-center cursor-pointer hover:bg-white/5 rounded-lg p-3 transition-colors"
+                  onClick={() => handleDiagramClick('progress', 'Total Fleet Idle', 68, 'This metric shows the total time your fleet has been idle, which can help identify opportunities to improve operational efficiency.')}
+                >
                   <div className="flex items-center justify-center mb-1">
                     <img 
                       src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='%23FFB400' stroke-width='2' d='M12,3 C16.971,3 21,7.029 21,12 C21,16.971 16.971,21 12,21 C7.029,21 3,16.971 3,12 C3,7.029 7.029,3 12,3 Z M12,7 L12,12 L16,12'/%3E%3C/svg%3E" 
@@ -166,7 +203,10 @@ const Dashboard = () => {
                   <div className="text-4xl font-bold mt-1">68 hours</div>
                 </div>
                 
-                <div className="text-center">
+                <div 
+                  className="text-center cursor-pointer hover:bg-white/5 rounded-lg p-3 transition-colors"
+                  onClick={() => handleDiagramClick('progress', 'Approx Fuel Waste', 47.6, 'This metric estimates the amount of fuel wasted during idle time, which has both financial and environmental implications.')}
+                >
                   <div className="flex items-center justify-center mb-1">
                     <img 
                       src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='%23FF5A5F' stroke-width='2' d='M3,7 L12,7 L12,12 M12,17 L21,17 M5,3 L19,3 C20.105,3 21,3.895 21,5 L21,7 L3,7 L3,5 C3,3.895 3.895,3 5,3 Z M3,7 L3,19 C3,20.105 3.895,21 5,21 L19,21 C20.105,21 21,20.105 21,19 L21,7'/%3E%3C/svg%3E" 
@@ -236,6 +276,13 @@ const Dashboard = () => {
           />
         </div>
       </main>
+
+      {/* Details Popup */}
+      <DiagramDetailsPopup 
+        isOpen={popupOpen}
+        onClose={closePopup}
+        details={popupDetails}
+      />
     </div>
   );
 };
