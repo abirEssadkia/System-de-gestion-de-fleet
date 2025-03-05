@@ -1,5 +1,5 @@
+
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 import { CircularProgress } from '@/components/dashboard/CircularProgress';
 import { LineChart } from '@/components/dashboard/LineChart';
@@ -13,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 
 const Dashboard = () => {
   const [isLoaded, setIsLoaded] = useState(false);
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -39,11 +38,13 @@ const Dashboard = () => {
       params.set('description', description);
     }
     
-    navigate(`/diagram-details?${params.toString()}`);
+    // Open in a new tab instead of navigating in the same window
+    const url = `/diagram-details?${params.toString()}`;
+    window.open(url, '_blank');
     
     toast({
       title: "Opening diagram details",
-      description: `Viewing detailed information for ${title}`,
+      description: `Viewing detailed information for ${title} in a new tab`,
       duration: 3000,
     });
   };

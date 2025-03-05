@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -56,7 +55,7 @@ const DiagramDetails: React.FC<DiagramDetailsProps> = () => {
             <div className="flex justify-center my-8">
               <div className="w-64 h-64 relative">
                 <DonutChart 
-                  data={details.data}
+                  chartData={details.data}
                   size={256}
                 />
               </div>
