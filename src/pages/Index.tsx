@@ -20,16 +20,76 @@ const Dashboard = () => {
     setIsLoaded(true);
   }, []);
   
-  // Sample locations for the delivery maps
+  // Sample locations for the delivery maps in Morocco
   const mapLocations = [
-    {id: 1, title: "Paris District", points: [{lat: 48.8566, lng: 2.3522}, {lat: 48.8656, lng: 2.3789}]},
-    {id: 2, title: "Lyon Area", points: [{lat: 45.7640, lng: 4.8357}, {lat: 45.7578, lng: 4.8320}, {lat: 45.7671, lng: 4.8307}]},
-    {id: 3, title: "Marseille Zone", points: [{lat: 43.2965, lng: 5.3698}, {lat: 43.3036, lng: 5.3954}]},
-    {id: 4, title: "Bordeaux Region", points: [{lat: 44.8378, lng: -0.5792}, {lat: 44.8404, lng: -0.5805}, {lat: 44.8333, lng: -0.5928}]},
-    {id: 5, title: "Lille District", points: [{lat: 50.6292, lng: 3.0573}, {lat: 50.6333, lng: 3.0679}]},
-    {id: 6, title: "Strasbourg Area", points: [{lat: 48.5734, lng: 7.7521}, {lat: 48.5845, lng: 7.7456}, {lat: 48.5700, lng: 7.7600}]},
-    {id: 7, title: "Nice Coastal", points: [{lat: 43.7102, lng: 7.2620}, {lat: 43.7031, lng: 7.2660}]},
-    {id: 8, title: "Toulouse Center", points: [{lat: 43.6047, lng: 1.4442}, {lat: 43.6100, lng: 1.4500}, {lat: 43.5984, lng: 1.4400}]}
+    {
+      id: 1, 
+      title: "Casablanca", 
+      points: [
+        {lat: 33.5731, lng: -7.5898, description: "Delivery failed at Maârif"},
+        {lat: 33.5950, lng: -7.6190, description: "Package return at Sidi Belyout"}
+      ]
+    },
+    {
+      id: 2, 
+      title: "Marrakech", 
+      points: [
+        {lat: 31.6295, lng: -7.9811, description: "Delayed pickup at Medina"},
+        {lat: 31.6425, lng: -8.0022, description: "Missed delivery at Hivernage"},
+        {lat: 31.6140, lng: -8.0352, description: "Late delivery at Palmeraie"}
+      ]
+    },
+    {
+      id: 3, 
+      title: "Fes", 
+      points: [
+        {lat: 34.0181, lng: -5.0078, description: "Delivery issue at Rcif"},
+        {lat: 34.0330, lng: -4.9830, description: "Package return at Bab Jdid"}
+      ]
+    },
+    {
+      id: 4, 
+      title: "Nador", 
+      points: [
+        {lat: 35.1740, lng: -2.9287, description: "Failed pickup at City Center"},
+        {lat: 35.1680, lng: -2.9380, description: "Delivery exception at Boulevard Hassan II"},
+        {lat: 35.1611, lng: -2.9500, description: "Delayed delivery at Corniche"}
+      ]
+    },
+    {
+      id: 5, 
+      title: "Agadir", 
+      points: [
+        {lat: 30.4278, lng: -9.5981, description: "Late delivery at Marina"},
+        {lat: 30.4060, lng: -9.5900, description: "Missed pickup at Founty"}
+      ]
+    },
+    {
+      id: 6, 
+      title: "Ouarzazate", 
+      points: [
+        {lat: 30.9335, lng: -6.9370, description: "Package return at City Center"},
+        {lat: 30.9200, lng: -6.9100, description: "Pickup issue at Atlas Studios"},
+        {lat: 30.9150, lng: -6.8930, description: "Delivery problem at Tabounte"}
+      ]
+    },
+    {
+      id: 7, 
+      title: "Rabat", 
+      points: [
+        {lat: 34.0209, lng: -6.8416, description: "Delayed delivery at Hassan"},
+        {lat: 34.0100, lng: -6.8300, description: "Package return at Agdal"}
+      ]
+    },
+    {
+      id: 8, 
+      title: "Tanger", 
+      points: [
+        {lat: 35.7812, lng: -5.8137, description: "Failed delivery at Marina Bay"},
+        {lat: 35.7690, lng: -5.8330, description: "Missed pickup at Old Medina"},
+        {lat: 35.7590, lng: -5.8033, description: "Delivery issue at Malabata"}
+      ]
+    }
   ];
 
   return (
@@ -59,7 +119,8 @@ const Dashboard = () => {
             <DeliveryMap 
               key={location.id} 
               title={location.title} 
-              points={location.points} 
+              points={location.points}
+              handleClick={handleDiagramClick}
             />
           ))}
         </div>

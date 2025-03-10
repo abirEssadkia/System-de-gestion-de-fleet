@@ -5,10 +5,11 @@ import { Header } from '@/components/diagram-details/Header';
 import { DonutChartView } from '@/components/diagram-details/DonutChartView';
 import { LineChartView } from '@/components/diagram-details/LineChartView';
 import { CircularProgressView } from '@/components/diagram-details/CircularProgressView';
+import { MapView } from '@/components/diagram-details/MapView';
 import { AdditionalInfo } from '@/components/diagram-details/AdditionalInfo';
 
 interface DiagramDetails {
-  type: 'donut' | 'line' | 'bar' | 'progress';
+  type: 'donut' | 'line' | 'bar' | 'progress' | 'map';
   title: string;
   description?: string;
   data: any;
@@ -19,7 +20,7 @@ const DiagramDetails = () => {
   const [details, setDetails] = useState<DiagramDetails | null>(null);
   
   useEffect(() => {
-    const type = searchParams.get('type') as 'donut' | 'line' | 'bar' | 'progress';
+    const type = searchParams.get('type') as 'donut' | 'line' | 'bar' | 'progress' | 'map';
     const title = searchParams.get('title');
     const description = searchParams.get('description');
     const dataString = searchParams.get('data');
@@ -51,6 +52,8 @@ const DiagramDetails = () => {
         return <LineChartView data={details.data} />;
       case 'progress':
         return <CircularProgressView data={details.data} />;
+      case 'map':
+        return <MapView data={details.data} />;
       default:
         return <div>Unsupported chart type</div>;
     }

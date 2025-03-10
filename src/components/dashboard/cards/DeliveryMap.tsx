@@ -6,16 +6,24 @@ import { MapPin } from 'lucide-react';
 interface Point {
   lat: number;
   lng: number;
+  description?: string;
 }
 
 interface DeliveryMapProps {
   title: string;
   points: Point[];
+  handleClick?: (type: string, title: string, data: any, description?: string) => void;
 }
 
-export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points }) => {
+export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, handleClick }) => {
+  const openDetails = () => {
+    if (handleClick) {
+      handleClick('map', title, points, `Delivery and pickup issues in ${title}`);
+    }
+  };
+
   return (
-    <DashboardCard className="col-span-1 min-h-[200px]">
+    <DashboardCard className="col-span-1 min-h-[200px] cursor-pointer hover:shadow-md transition-shadow" onClick={openDetails}>
       <DashboardCardTitle>{title}</DashboardCardTitle>
       
       <div className="relative h-[150px] bg-gray-100 rounded-lg mt-2">
@@ -50,7 +58,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points }) => {
               >
                 <MapPin size={24} color="#ea384c" fill="#ea384c" strokeWidth={1.5} className="animate-pulse" />
                 <div className="absolute hidden group-hover:block bg-white p-1 rounded shadow-md text-xs -mt-1 ml-3 whitespace-nowrap z-10">
-                  Issue at {point.lat.toFixed(2)}, {point.lng.toFixed(2)}
+                  {point.description || `Issue at ${point.lat.toFixed(2)}, ${point.lng.toFixed(2)}`}
                 </div>
               </div>
             );
