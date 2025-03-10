@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import DiagramDetails from "./pages/DiagramDetails";
 import MapDetailView from "./pages/MapDetailView";
+import AlertManagement from "./pages/AlertManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/diagram-details" element={<DiagramDetails />} />
           <Route path="/map-detail" element={<MapDetailView />} />
+          <Route path="/alert-management" element={<AlertManagement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
