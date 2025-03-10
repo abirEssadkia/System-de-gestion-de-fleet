@@ -7,6 +7,7 @@ interface DashboardCardProps {
   children: React.ReactNode;
   animate?: boolean;
   delay?: '100' | '200' | '300' | '400' | '500';
+  onClick?: () => void; // Add onClick prop
 }
 
 export const DashboardCard = ({
@@ -14,6 +15,7 @@ export const DashboardCard = ({
   children,
   animate = true,
   delay = '100',
+  onClick, // Add onClick parameter
 }: DashboardCardProps) => {
   return (
     <div 
@@ -23,6 +25,7 @@ export const DashboardCard = ({
         animate && `animate-slideUp animate-delay-${delay}`,
         className
       )}
+      onClick={onClick} // Apply onClick handler
     >
       {children}
     </div>

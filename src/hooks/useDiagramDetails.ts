@@ -4,7 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 export const useDiagramDetails = () => {
   const { toast } = useToast();
   
-  const handleDiagramClick = (type: 'donut' | 'line' | 'bar' | 'progress', title: string, data: any, description?: string) => {
+  const handleDiagramClick = (type: 'donut' | 'line' | 'bar' | 'progress' | 'map', title: string, data: any, description?: string) => {
     const params = new URLSearchParams();
     params.set('type', type);
     params.set('title', title);
