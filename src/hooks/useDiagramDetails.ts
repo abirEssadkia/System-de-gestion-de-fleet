@@ -13,12 +13,20 @@ export const useDiagramDetails = () => {
       params.set('description', description);
     }
     
-    // Open in a new tab instead of navigating in the same window
-    const url = `/diagram-details?${params.toString()}`;
+    let url;
+    if (type === 'map') {
+      // For maps, navigate to the full map view
+      url = `/map-detail?${params.toString()}`;
+    } else {
+      // For charts, use the diagram details page
+      url = `/diagram-details?${params.toString()}`;
+    }
+    
+    // Open in a new tab
     window.open(url, '_blank');
     
     toast({
-      title: "Opening diagram details",
+      title: type === 'map' ? "Opening map details" : "Opening diagram details",
       description: `Viewing detailed information for ${title} in a new tab`,
       duration: 3000,
     });
