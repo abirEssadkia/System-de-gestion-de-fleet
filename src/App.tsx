@@ -10,6 +10,7 @@ import MapDetailView from "./pages/MapDetailView";
 import AlertManagement from "./pages/AlertManagement";
 import Vehicles from "./pages/Vehicles";
 import Drivers from "./pages/Drivers";
+import Maintenance from "./pages/Maintenance";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/alert-management" element={<AlertManagement />} />
           <Route path="/vehicles" element={<Vehicles />} />
           <Route path="/drivers" element={<Drivers />} />
+          <Route path="/maintenance" element={<Maintenance />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
