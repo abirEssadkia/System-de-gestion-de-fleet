@@ -50,19 +50,21 @@ const vehicleFormSchema = z.object({
 });
 
 export const VehicleForm: React.FC<VehicleFormProps> = ({ open, onClose, onSubmit, vehicle }) => {
+  const defaultValues: Omit<Vehicle, 'id'> & { id?: string } = vehicle || {
+    licensePlate: '',
+    type: 'Truck',
+    status: 'Available',
+    model: '',
+    year: new Date().getFullYear(),
+    lastMaintenance: new Date().toISOString().split('T')[0],
+    fuelLevel: 100,
+    mileage: 0,
+    assignedDriverId: undefined,
+  };
+
   const form = useForm<z.infer<typeof vehicleFormSchema>>({
     resolver: zodResolver(vehicleFormSchema),
-    defaultValues: vehicle || {
-      licensePlate: '',
-      type: 'Truck',
-      status: 'Available',
-      model: '',
-      year: new Date().getFullYear(),
-      lastMaintenance: new Date().toISOString().split('T')[0],
-      fuelLevel: 100,
-      mileage: 0,
-      assignedDriverId: undefined,
-    },
+    defaultValues,
   });
 
   const handleSubmit = (data: z.infer<typeof vehicleFormSchema>) => {

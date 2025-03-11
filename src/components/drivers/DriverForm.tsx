@@ -51,20 +51,22 @@ const driverFormSchema = z.object({
 });
 
 export const DriverForm: React.FC<DriverFormProps> = ({ open, onClose, onSubmit, driver }) => {
+  const defaultValues: Omit<Driver, 'id'> & { id?: string } = driver || {
+    name: '',
+    status: 'Available',
+    license: '',
+    licenseExpiry: '',
+    phone: '',
+    email: '',
+    rating: 5.0,
+    totalTrips: 0,
+    hireDate: new Date().toISOString().split('T')[0],
+    assignedVehicleId: undefined,
+  };
+
   const form = useForm<z.infer<typeof driverFormSchema>>({
     resolver: zodResolver(driverFormSchema),
-    defaultValues: driver || {
-      name: '',
-      status: 'Available',
-      license: '',
-      licenseExpiry: '',
-      phone: '',
-      email: '',
-      rating: 5.0,
-      totalTrips: 0,
-      hireDate: new Date().toISOString().split('T')[0],
-      assignedVehicleId: undefined,
-    },
+    defaultValues,
   });
 
   const handleSubmit = (data: z.infer<typeof driverFormSchema>) => {
