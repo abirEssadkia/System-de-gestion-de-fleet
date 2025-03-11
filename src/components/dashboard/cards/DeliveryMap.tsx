@@ -41,7 +41,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, handleC
           <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-gray-300"></div>
           <div className="absolute top-1/4 left-0 right-0 h-[2px] bg-gray-300"></div>
           
-          {/* Problem points */}
+          {/* Problem points - show a pin for each issue */}
           {points.map((point, index) => {
             // Calculate position based on lat/lng (simplified for visual purposes)
             const left = ((point.lng + 180) / 360) * 100;
