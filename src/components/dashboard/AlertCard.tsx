@@ -2,6 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { DashboardCard } from './DashboardCard';
+import { useNavigate } from 'react-router-dom';
 
 interface AlertCardProps {
   title: string;
@@ -12,6 +13,7 @@ interface AlertCardProps {
   iconColor?: string;
   className?: string;
   delay?: '100' | '200' | '300' | '400' | '500';
+  alertType?: 'speed' | 'fuel' | 'activity' | 'geofence' | 'time';
 }
 
 export const AlertCard = ({
@@ -23,9 +25,20 @@ export const AlertCard = ({
   iconColor = 'text-red-500',
   className,
   delay,
+  alertType = 'speed',
 }: AlertCardProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/alert-management?type=${alertType}`);
+  };
+
   return (
-    <DashboardCard className={cn("", className)} delay={delay}>
+    <DashboardCard 
+      className={cn("cursor-pointer hover:shadow-md transition-shadow", className)} 
+      delay={delay}
+      onClick={handleClick}
+    >
       <div className="flex justify-between items-center">
         <div>
           <h3 className="dashboard-title">{title}</h3>

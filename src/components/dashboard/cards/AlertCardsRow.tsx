@@ -15,6 +15,7 @@ export const AlertCardsRow = () => {
         iconColor="text-red-500" 
         className="col-span-1 bg-red-50" 
         delay="100"
+        alertType="speed"
       />
       
       <AlertCard 
@@ -25,6 +26,7 @@ export const AlertCardsRow = () => {
         iconBg="bg-amber-100" 
         iconColor="text-amber-500" 
         delay="200"
+        alertType="fuel"
       />
       
       <AlertCard 
@@ -35,6 +37,7 @@ export const AlertCardsRow = () => {
         iconBg="bg-red-100" 
         iconColor="text-red-500" 
         delay="300"
+        alertType="activity"
       />
       
       <AlertCard 
@@ -45,6 +48,7 @@ export const AlertCardsRow = () => {
         iconBg="bg-red-100" 
         iconColor="text-red-500" 
         delay="400"
+        alertType="geofence"
       />
       
       <AlertCard 
@@ -55,6 +59,7 @@ export const AlertCardsRow = () => {
         iconBg="bg-blue-100" 
         iconColor="text-blue-500" 
         delay="500"
+        alertType="time"
       />
     </>
   );
