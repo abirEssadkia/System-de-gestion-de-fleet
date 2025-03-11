@@ -7,13 +7,13 @@ export const Navbar = () => {
   return (
     <div className="bg-fleet-navy text-white p-4 flex items-center justify-between shadow-sm">
       <div className="flex items-center space-x-6">
-        <h1 className="text-lg font-semibold">Fleet Dashboard</h1>
+        <Link to="/" className="text-lg font-semibold">Fleet Dashboard</Link>
         <nav className="hidden md:flex space-x-6">
-          <a href="#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Overview</a>
-          <a href="#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Vehicles</a>
-          <a href="#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Drivers</a>
-          <a href="#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Reports</a>
-          <a href="#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Maintenance</a>
+          <Link to="/" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Overview</Link>
+          <Link to="/vehicles" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Vehicles</Link>
+          <Link to="/drivers" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Drivers</Link>
+          <Link to="#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Reports</Link>
+          <Link to="#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Maintenance</Link>
         </nav>
       </div>
       <div className="flex items-center space-x-4">
