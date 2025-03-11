@@ -61,7 +61,7 @@ export const VehicleForm: React.FC<VehicleFormProps> = ({ open, onClose, onSubmi
     lastMaintenance: vehicle?.lastMaintenance || new Date().toISOString().split('T')[0],
     fuelLevel: vehicle?.fuelLevel || 100,
     mileage: vehicle?.mileage || 0,
-    assignedDriverId: vehicle?.assignedDriverId,
+    assignedDriverId: vehicle?.assignedDriverId || '',
   };
 
   const form = useForm<z.infer<typeof vehicleFormSchema>>({
@@ -70,7 +70,25 @@ export const VehicleForm: React.FC<VehicleFormProps> = ({ open, onClose, onSubmi
   });
 
   const handleSubmit = (data: z.infer<typeof vehicleFormSchema>) => {
-    onSubmit(data);
+    // Ensure all required fields are present
+    const vehicleData: Omit<Vehicle, 'id'> & { id?: string } = {
+      licensePlate: data.licensePlate,
+      type: data.type,
+      status: data.status,
+      model: data.model,
+      year: data.year,
+      lastMaintenance: data.lastMaintenance,
+      fuelLevel: data.fuelLevel,
+      mileage: data.mileage,
+      assignedDriverId: data.assignedDriverId,
+    };
+    
+    // Only include id if it exists
+    if (data.id) {
+      vehicleData.id = data.id;
+    }
+    
+    onSubmit(vehicleData);
     onClose();
   };
 

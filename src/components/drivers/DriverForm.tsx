@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Driver } from '@/types/fleet';
 import { z } from 'zod';
@@ -63,7 +62,7 @@ export const DriverForm: React.FC<DriverFormProps> = ({ open, onClose, onSubmit,
     rating: driver?.rating || 5.0,
     totalTrips: driver?.totalTrips || 0,
     hireDate: driver?.hireDate || new Date().toISOString().split('T')[0],
-    assignedVehicleId: driver?.assignedVehicleId,
+    assignedVehicleId: driver?.assignedVehicleId || '',
   };
 
   const form = useForm<z.infer<typeof driverFormSchema>>({
@@ -72,7 +71,26 @@ export const DriverForm: React.FC<DriverFormProps> = ({ open, onClose, onSubmit,
   });
 
   const handleSubmit = (data: z.infer<typeof driverFormSchema>) => {
-    onSubmit(data);
+    // Ensure all required fields are present
+    const driverData: Omit<Driver, 'id'> & { id?: string } = {
+      name: data.name,
+      status: data.status,
+      license: data.license,
+      licenseExpiry: data.licenseExpiry,
+      phone: data.phone,
+      email: data.email,
+      rating: data.rating,
+      totalTrips: data.totalTrips,
+      hireDate: data.hireDate,
+      assignedVehicleId: data.assignedVehicleId,
+    };
+    
+    // Only include id if it exists
+    if (data.id) {
+      driverData.id = data.id;
+    }
+    
+    onSubmit(driverData);
     onClose();
   };
 

@@ -76,7 +76,7 @@ export const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
     cost: record?.cost || 0,
     technician: record?.technician || '',
     notes: record?.notes || '',
-    endDate: record?.endDate || undefined
+    endDate: record?.endDate || ''
   };
 
   const form = useForm<z.infer<typeof maintenanceFormSchema>>({
@@ -85,12 +85,25 @@ export const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
   });
 
   const handleSubmit = (data: z.infer<typeof maintenanceFormSchema>) => {
-    // Converting cost to number to ensure it's not a string
-    const formattedData = {
-      ...data,
+    // Ensure all required fields are present and properly typed
+    const maintenanceData: Omit<MaintenanceRecord, 'id'> & { id?: string } = {
+      vehicleId: data.vehicleId,
+      type: data.type,
+      startDate: data.startDate,
+      status: data.status,
+      description: data.description,
       cost: Number(data.cost),
+      technician: data.technician,
+      notes: data.notes || undefined,
+      endDate: data.endDate || undefined
     };
-    onSubmit(formattedData);
+    
+    // Only include id if it exists
+    if (data.id) {
+      maintenanceData.id = data.id;
+    }
+    
+    onSubmit(maintenanceData);
     form.reset();
     onClose();
   };
