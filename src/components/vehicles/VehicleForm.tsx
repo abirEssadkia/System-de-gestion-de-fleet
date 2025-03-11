@@ -50,16 +50,18 @@ const vehicleFormSchema = z.object({
 });
 
 export const VehicleForm: React.FC<VehicleFormProps> = ({ open, onClose, onSubmit, vehicle }) => {
-  const defaultValues: Omit<Vehicle, 'id'> & { id?: string } = vehicle || {
-    licensePlate: '',
-    type: 'Truck',
-    status: 'Available',
-    model: '',
-    year: new Date().getFullYear(),
-    lastMaintenance: new Date().toISOString().split('T')[0],
-    fuelLevel: 100,
-    mileage: 0,
-    assignedDriverId: undefined,
+  // Make sure defaultValues has non-optional values for all required fields
+  const defaultValues = {
+    id: vehicle?.id,
+    licensePlate: vehicle?.licensePlate || '',
+    type: vehicle?.type || 'Truck',
+    status: vehicle?.status || 'Available',
+    model: vehicle?.model || '',
+    year: vehicle?.year || new Date().getFullYear(),
+    lastMaintenance: vehicle?.lastMaintenance || new Date().toISOString().split('T')[0],
+    fuelLevel: vehicle?.fuelLevel || 100,
+    mileage: vehicle?.mileage || 0,
+    assignedDriverId: vehicle?.assignedDriverId,
   };
 
   const form = useForm<z.infer<typeof vehicleFormSchema>>({

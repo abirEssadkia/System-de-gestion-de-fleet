@@ -65,15 +65,18 @@ export const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
   record, 
   vehicles 
 }) => {
-  const defaultValues: Omit<MaintenanceRecord, 'id'> & { id?: string } = record || {
-    vehicleId: '',
-    type: 'Routine',
-    startDate: new Date().toISOString().split('T')[0],
-    status: 'Scheduled',
-    description: '',
-    cost: 0,
-    technician: '',
-    notes: '',
+  // Make sure defaultValues has non-optional values for all required fields
+  const defaultValues = {
+    id: record?.id,
+    vehicleId: record?.vehicleId || '',
+    type: record?.type || 'Routine',
+    startDate: record?.startDate || new Date().toISOString().split('T')[0],
+    status: record?.status || 'Scheduled',
+    description: record?.description || '',
+    cost: record?.cost || 0,
+    technician: record?.technician || '',
+    notes: record?.notes || '',
+    endDate: record?.endDate || undefined
   };
 
   const form = useForm<z.infer<typeof maintenanceFormSchema>>({

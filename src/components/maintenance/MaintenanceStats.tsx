@@ -167,7 +167,10 @@ export const MaintenanceStats: React.FC<MaintenanceStatsProps> = ({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="type" />
               <YAxis />
-              <Tooltip formatter={(value) => [`${value.toFixed(1)} days`, 'Duration']} />
+              <Tooltip formatter={(value) => {
+                // Ensure value is a number before calling toFixed
+                return typeof value === 'number' ? [`${value.toFixed(1)} days`, 'Duration'] : [`${value} days`, 'Duration'];
+              }} />
               <Bar dataKey="averageDuration" fill="#16a34a" />
             </BarChart>
           </ResponsiveContainer>

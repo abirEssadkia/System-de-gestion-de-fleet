@@ -51,17 +51,19 @@ const driverFormSchema = z.object({
 });
 
 export const DriverForm: React.FC<DriverFormProps> = ({ open, onClose, onSubmit, driver }) => {
-  const defaultValues: Omit<Driver, 'id'> & { id?: string } = driver || {
-    name: '',
-    status: 'Available',
-    license: '',
-    licenseExpiry: '',
-    phone: '',
-    email: '',
-    rating: 5.0,
-    totalTrips: 0,
-    hireDate: new Date().toISOString().split('T')[0],
-    assignedVehicleId: undefined,
+  // Make sure defaultValues has non-optional values for all required fields
+  const defaultValues = {
+    id: driver?.id,
+    name: driver?.name || '',
+    status: driver?.status || 'Available',
+    license: driver?.license || '',
+    licenseExpiry: driver?.licenseExpiry || '',
+    phone: driver?.phone || '',
+    email: driver?.email || '',
+    rating: driver?.rating || 5.0,
+    totalTrips: driver?.totalTrips || 0,
+    hireDate: driver?.hireDate || new Date().toISOString().split('T')[0],
+    assignedVehicleId: driver?.assignedVehicleId,
   };
 
   const form = useForm<z.infer<typeof driverFormSchema>>({
