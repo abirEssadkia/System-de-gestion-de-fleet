@@ -1,13 +1,19 @@
-
 import React, { useState } from 'react';
 import { Navbar } from '@/components/dashboard/Navbar';
 import { VehicleList } from '@/components/vehicles/VehicleList';
 import { VehicleForm } from '@/components/vehicles/VehicleForm';
 import { Vehicle } from '@/types/fleet';
 import { Button } from '@/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getVehicles, addVehicle, updateVehicle, deleteVehicle } from '@/services/fleetService';
-import { Plus, RefreshCw } from 'lucide-react';
+import { Plus, RefreshCw, Filter } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,6 +30,7 @@ const Vehicles = () => {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | undefined>(undefined);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   
   const queryClient = useQueryClient();
   
@@ -31,6 +38,10 @@ const Vehicles = () => {
     queryKey: ['vehicles'],
     queryFn: getVehicles,
   });
+
+  const filteredVehicles = statusFilter === 'all' 
+    ? vehicles 
+    : vehicles.filter(vehicle => vehicle.status === statusFilter);
   
   const addMutation = useMutation({
     mutationFn: addVehicle,
@@ -94,6 +105,21 @@ const Vehicles = () => {
             <p className="text-fleet-dark-gray">Manage your fleet of vehicles</p>
           </div>
           <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <Filter className="h-4 w-4 text-fleet-dark-gray" />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="Available">Available</SelectItem>
+                  <SelectItem value="In Use">In Use</SelectItem>
+                  <SelectItem value="Maintenance">Maintenance</SelectItem>
+                  <SelectItem value="Out of Service">Out of Service</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <Button variant="outline" onClick={() => refetch()} disabled={isLoading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
               Refresh
@@ -115,7 +141,7 @@ const Vehicles = () => {
           </div>
         ) : (
           <VehicleList 
-            vehicles={vehicles} 
+            vehicles={filteredVehicles} 
             onEdit={handleEdit} 
             onDelete={handleDelete} 
           />
