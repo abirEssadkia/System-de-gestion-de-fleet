@@ -1,36 +1,160 @@
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { useMobile } from '@/hooks/use-mobile';
+import {
+  LayoutDashboard,
+  Truck,
+  Users,
+  Wrench,
+  FileText,
+  Menu,
+  X
+} from 'lucide-react';
 
-import React from 'react';
-import { Settings, Filter, BellRing, Wrench } from 'lucide-react';
-import { Link } from 'react-router-dom';
+interface NavButtonProps {
+  onClick: () => void;
+  active: boolean;
+  icon: React.ReactNode;
+  label: string;
+}
+
+const NavButton: React.FC<NavButtonProps> = ({ onClick, active, icon, label }) => {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex items-center justify-center px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+        active ? "bg-secondary text-secondary-foreground" : "text-muted-foreground"
+      )}
+    >
+      {icon}
+      <span className="ml-2">{label}</span>
+    </button>
+  );
+};
+
+interface MobileNavButtonProps {
+  onClick: () => void;
+  active: boolean;
+  icon: React.ReactNode;
+  label: string;
+}
+
+const MobileNavButton: React.FC<MobileNavButtonProps> = ({ onClick, active, icon, label }) => {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex items-center justify-start w-full px-4 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+        active ? "bg-secondary text-secondary-foreground" : "text-muted-foreground"
+      )}
+    >
+      {icon}
+      <span className="ml-2">{label}</span>
+    </button>
+  );
+};
 
 export const Navbar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useMobile();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
+
   return (
-    <div className="bg-fleet-navy text-white p-4 flex items-center justify-between shadow-sm">
-      <div className="flex items-center space-x-6">
-        <Link to="/" className="text-lg font-semibold">Fleet Dashboard</Link>
-        <nav className="hidden md:flex space-x-6">
-          <Link to="/" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Overview</Link>
-          <Link to="/vehicles" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Vehicles</Link>
-          <Link to="/drivers" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Drivers</Link>
-          <Link to="/maintenance" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Maintenance</Link>
-          <Link to="#" className="text-white/80 hover:text-white transition-colors text-sm font-medium">Reports</Link>
-        </nav>
+    <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div className="container mx-auto flex justify-between items-center">
+        <div className="flex items-center">
+          <button onClick={() => navigate('/')} className="font-bold text-xl text-fleet-navy py-4">
+            Fleet Management
+          </button>
+        </div>
+        
+        <div className={`${isMobile ? 'hidden' : 'flex'} space-x-1`}>
+          <NavButton 
+            onClick={() => navigate('/')}
+            active={isActive('/')}
+            icon={<LayoutDashboard size={20} />}
+            label="Dashboard"
+          />
+          <NavButton 
+            onClick={() => navigate('/vehicles')}
+            active={isActive('/vehicles')}
+            icon={<Truck size={20} />}
+            label="Vehicles"
+          />
+          <NavButton 
+            onClick={() => navigate('/drivers')}
+            active={isActive('/drivers')}
+            icon={<Users size={20} />}
+            label="Drivers"
+          />
+          <NavButton 
+            onClick={() => navigate('/maintenance')}
+            active={isActive('/maintenance')}
+            icon={<Wrench size={20} />}
+            label="Maintenance"
+          />
+          <NavButton 
+            onClick={() => navigate('/reports')}
+            active={isActive('/reports')}
+            icon={<FileText size={20} />}
+            label="Reports"
+          />
+        </div>
+
+        {isMobile && (
+          <button onClick={toggleMenu} className="text-gray-500 hover:text-gray-700 focus:outline-none">
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        )}
       </div>
-      <div className="flex items-center space-x-4">
-        <Link 
-          to="/alert-management" 
-          className="flex items-center p-2 rounded-full hover:bg-white/10 transition-colors"
-        >
-          <BellRing className="w-5 h-5 mr-1" />
-          <span className="hidden sm:inline text-sm font-medium">Alert Management</span>
-        </Link>
-        <button className="p-2 rounded-full hover:bg-white/10 transition-colors">
-          <Filter className="w-5 h-5" />
-        </button>
-        <button className="p-2 rounded-full hover:bg-white/10 transition-colors">
-          <Settings className="w-5 h-5" />
-        </button>
-      </div>
+      
+        {isMenuOpen && (
+          <div className="absolute top-16 left-0 right-0 bg-white z-50 border-b border-gray-200 shadow-lg">
+            <div className="container mx-auto py-2 flex flex-col">
+              <MobileNavButton 
+                onClick={() => {navigate('/'); setIsMenuOpen(false)}}
+                active={isActive('/')}
+                icon={<LayoutDashboard size={20} />}
+                label="Dashboard"
+              />
+              <MobileNavButton 
+                onClick={() => {navigate('/vehicles'); setIsMenuOpen(false)}}
+                active={isActive('/vehicles')}
+                icon={<Truck size={20} />}
+                label="Vehicles"
+              />
+              <MobileNavButton 
+                onClick={() => {navigate('/drivers'); setIsMenuOpen(false)}}
+                active={isActive('/drivers')}
+                icon={<Users size={20} />}
+                label="Drivers"
+              />
+              <MobileNavButton 
+                onClick={() => {navigate('/maintenance'); setIsMenuOpen(false)}}
+                active={isActive('/maintenance')}
+                icon={<Wrench size={20} />}
+                label="Maintenance"
+              />
+              <MobileNavButton 
+                onClick={() => {navigate('/reports'); setIsMenuOpen(false)}}
+                active={isActive('/reports')}
+                icon={<FileText size={20} />}
+                label="Reports"
+              />
+            </div>
+          </div>
+        )}
     </div>
   );
 };

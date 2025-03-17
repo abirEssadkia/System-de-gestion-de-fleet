@@ -1,40 +1,40 @@
-
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import DiagramDetails from "./pages/DiagramDetails";
-import MapDetailView from "./pages/MapDetailView";
-import AlertManagement from "./pages/AlertManagement";
-import Vehicles from "./pages/Vehicles";
-import Drivers from "./pages/Drivers";
-import Maintenance from "./pages/Maintenance";
-import NotFound from "./pages/NotFound";
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Toaster } from '@/components/ui/toaster';
+import Dashboard from '@/pages/Index';
+import Vehicles from '@/pages/Vehicles';
+import Drivers from '@/pages/Drivers';
+import Maintenance from '@/pages/Maintenance';
+import NotFound from '@/pages/NotFound';
+import DiagramDetails from '@/pages/DiagramDetails';
+import AlertManagement from '@/pages/AlertManagement';
+import MapDetailView from '@/pages/MapDetailView';
+import Reports from '@/pages/Reports';
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/diagram-details" element={<DiagramDetails />} />
-          <Route path="/map-detail" element={<MapDetailView />} />
-          <Route path="/alert-management" element={<AlertManagement />} />
-          <Route path="/vehicles" element={<Vehicles />} />
-          <Route path="/drivers" element={<Drivers />} />
-          <Route path="/maintenance" element={<Maintenance />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/vehicles" element={<Vehicles />} />
+            <Route path="/drivers" element={<Drivers />} />
+            <Route path="/maintenance" element={<Maintenance />} />
+            <Route path="/reports" element={<Reports />} />
+            <Route path="/diagram-details" element={<DiagramDetails />} />
+            <Route path="/alert-management" element={<AlertManagement />} />
+            <Route path="/map-detail-view" element={<MapDetailView />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+        <Toaster />
       </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  )
+}
 
-export default App;
+export default App
