@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -29,14 +29,38 @@ interface MapViewProps {
 
 export const MapView: React.FC<MapViewProps> = ({ data }) => {
   // Calculate map center based on average of point coordinates
-  const getMapCenter = (): [number, number] => {
+  const getMapCenter = useMemo((): [number, number] => {
     if (data.length === 0) return [31.7917, -7.0926]; // Default center of Morocco
 
     const sumLat = data.reduce((sum, point) => sum + point.lat, 0);
     const sumLng = data.reduce((sum, point) => sum + point.lng, 0);
     
     return [sumLat / data.length, sumLng / data.length];
-  };
+  }, [data]);
+
+  // Calculate appropriate zoom level based on the spread of points
+  const getBoundsZoom = useMemo(() => {
+    if (data.length <= 1) return 13; // Default zoom for single point
+    
+    // Find min/max coordinates to establish bounds
+    const lats = data.map(point => point.lat);
+    const lngs = data.map(point => point.lng);
+    
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+    
+    // Calculate distance between furthest points
+    const latDiff = maxLat - minLat;
+    const lngDiff = maxLng - minLng;
+    
+    // Adjust zoom based on distance (larger distance = lower zoom)
+    if (latDiff > 0.1 || lngDiff > 0.1) return 11;
+    if (latDiff > 0.05 || lngDiff > 0.05) return 12;
+    if (latDiff > 0.01 || lngDiff > 0.01) return 13;
+    return 14;
+  }, [data]);
 
   const customMarkerIcon = new L.Icon({
     iconUrl: icon,
@@ -49,8 +73,8 @@ export const MapView: React.FC<MapViewProps> = ({ data }) => {
   return (
     <div className="my-8 w-full h-[400px] mx-auto relative rounded-lg overflow-hidden border border-gray-200">
       <MapContainer 
-        center={getMapCenter()} 
-        zoom={11} 
+        center={getMapCenter} 
+        zoom={getBoundsZoom} 
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer

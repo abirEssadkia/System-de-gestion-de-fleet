@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 import { MapPin } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -39,14 +39,37 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, handleC
   };
 
   // Calculate map center based on average of point coordinates
-  const getMapCenter = (): [number, number] => {
+  const getMapCenter = useMemo((): [number, number] => {
     if (points.length === 0) return [31.7917, -7.0926]; // Default center of Morocco
 
     const sumLat = points.reduce((sum, point) => sum + point.lat, 0);
     const sumLng = points.reduce((sum, point) => sum + point.lng, 0);
     
     return [sumLat / points.length, sumLng / points.length];
-  };
+  }, [points]);
+
+  // Calculate appropriate zoom level based on the spread of points
+  const getBoundsZoom = useMemo(() => {
+    if (points.length <= 1) return 13; // Default zoom for single point
+    
+    // Find min/max coordinates to establish bounds
+    const lats = points.map(point => point.lat);
+    const lngs = points.map(point => point.lng);
+    
+    const minLat = Math.min(...lats);
+    const maxLat = Math.max(...lats);
+    const minLng = Math.min(...lngs);
+    const maxLng = Math.max(...lngs);
+    
+    // Calculate distance between furthest points
+    const latDiff = maxLat - minLat;
+    const lngDiff = maxLng - minLng;
+    
+    // For small preview maps, adjust zoom to be a bit further out
+    if (latDiff > 0.05 || lngDiff > 0.05) return 11;
+    if (latDiff > 0.02 || lngDiff > 0.02) return 12;
+    return 13;
+  }, [points]);
 
   const customMarkerIcon = new L.Icon({
     iconUrl: icon,
@@ -62,8 +85,8 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, handleC
       
       <div className="relative h-[150px] rounded-lg mt-2 overflow-hidden">
         <MapContainer 
-          center={getMapCenter()} 
-          zoom={10} 
+          center={getMapCenter} 
+          zoom={getBoundsZoom} 
           style={{ height: '100%', width: '100%' }}
           zoomControl={false}
           attributionControl={false}
