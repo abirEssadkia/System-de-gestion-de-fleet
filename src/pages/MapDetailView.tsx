@@ -1,7 +1,23 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { MapPin, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix for Leaflet default icon issue
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+  iconUrl: icon,
+  shadowUrl: iconShadow,
+  iconSize: [25, 41],
+  iconAnchor: [12, 41]
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 interface Point {
   lat: number;
@@ -33,6 +49,24 @@ const MapDetailView = () => {
   const handleGoBack = () => {
     navigate('/');
   };
+
+  // Calculate map center based on average of point coordinates
+  const getMapCenter = (): [number, number] => {
+    if (mapPoints.length === 0) return [31.7917, -7.0926]; // Default center of Morocco
+
+    const sumLat = mapPoints.reduce((sum, point) => sum + point.lat, 0);
+    const sumLng = mapPoints.reduce((sum, point) => sum + point.lng, 0);
+    
+    return [sumLat / mapPoints.length, sumLng / mapPoints.length];
+  };
+
+  const customMarkerIcon = new L.Icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+  });
   
   return (
     <div className="min-h-screen bg-fleet-gray p-6">
@@ -52,45 +86,29 @@ const MapDetailView = () => {
         
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
           {/* Large Map View */}
-          <div className="w-full h-[600px] mx-auto relative bg-[#f8f9fa] rounded-lg overflow-hidden border border-gray-200">
-            {/* Map grid lines */}
-            <div className="absolute inset-0" style={{ 
-              backgroundImage: 'linear-gradient(to right, #e5e7eb 1px, transparent 1px), linear-gradient(to bottom, #e5e7eb 1px, transparent 1px)',
-              backgroundSize: '40px 40px'
-            }}></div>
-            
-            {/* Map roads */}
-            <div className="absolute left-1/4 top-0 bottom-0 w-[3px] bg-gray-300"></div>
-            <div className="absolute right-1/3 top-0 bottom-0 w-[3px] bg-gray-300"></div>
-            <div className="absolute top-1/2 left-0 right-0 h-[3px] bg-gray-300"></div>
-            <div className="absolute top-1/4 left-0 right-0 h-[3px] bg-gray-300"></div>
-            
-            {/* Problem points */}
-            {mapPoints.map((point, index) => {
-              // Calculate position based on lat/lng
-              const left = ((point.lng + 180) / 360) * 100;
-              const top = ((90 - point.lat) / 180) * 100;
+          <div className="w-full h-[600px] mx-auto relative rounded-lg overflow-hidden border border-gray-200">
+            <MapContainer 
+              center={getMapCenter()} 
+              zoom={12} 
+              style={{ height: '100%', width: '100%' }}
+            >
+              <TileLayer
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              />
               
-              return (
-                <div 
-                  key={index}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2 group"
-                  style={{ 
-                    left: `${left}%`,
-                    top: `${top}%`
-                  }}
+              {mapPoints.map((point, index) => (
+                <Marker 
+                  key={index} 
+                  position={[point.lat, point.lng]}
+                  icon={customMarkerIcon}
                 >
-                  <MapPin size={36} color="#ea384c" fill="#ea384c" strokeWidth={1.5} className="animate-pulse" />
-                  <div className="absolute hidden group-hover:block bg-white p-2 rounded shadow-md text-sm -mt-1 ml-5 whitespace-nowrap z-10">
+                  <Popup>
                     {point.description || `Issue at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}
-                  </div>
-                </div>
-              );
-            })}
-            
-            <div className="absolute bottom-4 right-4 bg-white px-3 py-2 rounded-md shadow-sm text-sm">
-              {mapPoints.length} delivery/pickup issue{mapPoints.length !== 1 ? 's' : ''} detected
-            </div>
+                  </Popup>
+                </Marker>
+              ))}
+            </MapContainer>
           </div>
           
           {/* Location Details */}
@@ -100,8 +118,8 @@ const MapDetailView = () => {
               <div>
                 <h3 className="text-lg font-medium mb-2">Issue Summary</h3>
                 <p className="text-fleet-dark-gray">
-                  This map shows all delivery and pickup issues in {title}. Each pin represents a location 
-                  where a problem was encountered. Hover over the pins to see detailed information about each issue.
+                  This map shows all delivery and pickup issues in {title}. Each marker represents a location 
+                  where a problem was encountered. Click on markers to see detailed information about each issue.
                 </p>
               </div>
               <div>
@@ -109,7 +127,7 @@ const MapDetailView = () => {
                 <ul className="space-y-2 text-fleet-dark-gray">
                   {mapPoints.map((point, index) => (
                     <li key={index} className="flex items-start">
-                      <MapPin className="w-4 h-4 text-red-500 mt-1 mr-2 flex-shrink-0" />
+                      <span className="w-4 h-4 bg-blue-500 rounded-full mt-1 mr-2 flex-shrink-0"></span>
                       <span>{point.description || `Issue at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}</span>
                     </li>
                   ))}
