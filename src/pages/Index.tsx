@@ -10,11 +10,15 @@ import { AlertCardsRow } from '@/components/dashboard/cards/AlertCardsRow';
 import { useToast } from '@/hooks/use-toast';
 import { useDiagramDetails } from '@/hooks/useDiagramDetails';
 import { DeliveryMap } from '@/components/dashboard/cards/DeliveryMap';
+import { BellDot } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const { toast } = useToast();
   const { handleDiagramClick } = useDiagramDetails();
+  const navigate = useNavigate();
 
   useEffect(() => {
     setIsLoaded(true);
@@ -97,6 +101,17 @@ const Dashboard = () => {
       <Navbar />
       
       <main className="container mx-auto px-4 py-6">
+        {/* Alerts Button */}
+        <div className="mb-4">
+          <Button 
+            onClick={() => navigate('/alert-management')}
+            className="w-full bg-fleet-navy hover:bg-fleet-blue text-white"
+          >
+            <BellDot className="mr-2 h-5 w-5" /> 
+            Manage Fleet Alerts
+          </Button>
+        </div>
+
         {/* Add Filter Panel */}
         <FilterPanel />
         
