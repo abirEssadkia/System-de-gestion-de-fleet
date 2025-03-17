@@ -15,19 +15,19 @@ export const useDiagramDetails = () => {
     
     let url;
     if (type === 'map') {
-      // For maps, navigate to the full map view
-      url = `/map-detail?${params.toString()}`;
+      // Pour les cartes, naviguez vers la vue complète de la carte (correction de l'URL)
+      url = `/map-detail-view?${params.toString()}`;
     } else {
-      // For charts, use the diagram details page
+      // Pour les graphiques, utilisez la page de détails du diagramme
       url = `/diagram-details?${params.toString()}`;
     }
     
-    // Open in a new tab
+    // Ouvrir dans un nouvel onglet
     window.open(url, '_blank');
     
     toast({
-      title: type === 'map' ? "Opening map details" : "Opening diagram details",
-      description: `Viewing detailed information for ${title} in a new tab`,
+      title: type === 'map' ? "Ouverture des détails de la carte" : "Ouverture des détails du diagramme",
+      description: `Affichage des informations détaillées pour ${title} dans un nouvel onglet`,
       duration: 3000,
     });
   };
