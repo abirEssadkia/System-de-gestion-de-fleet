@@ -2,7 +2,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -24,6 +24,29 @@ interface Point {
   lng: number;
   description?: string;
 }
+
+// Component to set bounds of map to include all markers
+const SetBoundsToMarkers = ({ points }: { points: Point[] }) => {
+  const map = useMap();
+  
+  React.useEffect(() => {
+    if (points.length > 0) {
+      // Create an array of LatLng objects
+      const latLngs = points.map(point => L.latLng(point.lat, point.lng));
+      
+      // Create a bounds object
+      const bounds = L.latLngBounds(latLngs);
+      
+      // Fit the map to these bounds with some padding
+      map.fitBounds(bounds, { 
+        padding: [50, 50],
+        maxZoom: 16 // Limit max zoom level
+      });
+    }
+  }, [map, points]);
+  
+  return null;
+};
 
 const MapDetailView = () => {
   const [searchParams] = useSearchParams();
@@ -132,6 +155,9 @@ const MapDetailView = () => {
                   </Popup>
                 </Marker>
               ))}
+              
+              {/* Add component to automatically set bounds */}
+              <SetBoundsToMarkers points={mapPoints} />
             </MapContainer>
           </div>
           

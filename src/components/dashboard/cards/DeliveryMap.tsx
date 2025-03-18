@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 import { MapPin } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -30,6 +30,29 @@ interface DeliveryMapProps {
   points: Point[];
   handleClick?: (type: string, title: string, data: any, description?: string) => void;
 }
+
+// Component to set bounds of map to include all markers
+const SetBoundsToMarkers = ({ points }: { points: Point[] }) => {
+  const map = useMap();
+  
+  React.useEffect(() => {
+    if (points.length > 0) {
+      // Create an array of LatLng objects
+      const latLngs = points.map(point => L.latLng(point.lat, point.lng));
+      
+      // Create a bounds object
+      const bounds = L.latLngBounds(latLngs);
+      
+      // Fit the map to these bounds with some padding
+      map.fitBounds(bounds, { 
+        padding: [20, 20],
+        maxZoom: 14 // Limit max zoom level for dashboard small maps
+      });
+    }
+  }, [map, points]);
+  
+  return null;
+};
 
 export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, handleClick }) => {
   const openDetails = () => {
@@ -107,6 +130,9 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, handleC
               </Popup>
             </Marker>
           ))}
+          
+          {/* Add component to automatically set bounds */}
+          <SetBoundsToMarkers points={points} />
         </MapContainer>
         
         <div className="absolute bottom-2 right-2 bg-white/80 px-2 py-1 rounded text-xs text-gray-500 z-[400]">

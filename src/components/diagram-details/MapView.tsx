@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -26,6 +26,29 @@ interface Point {
 interface MapViewProps {
   data: Point[];
 }
+
+// Component to set bounds of map to include all markers
+const SetBoundsToMarkers = ({ points }: { points: Point[] }) => {
+  const map = useMap();
+  
+  React.useEffect(() => {
+    if (points.length > 0) {
+      // Create an array of LatLng objects
+      const latLngs = points.map(point => L.latLng(point.lat, point.lng));
+      
+      // Create a bounds object
+      const bounds = L.latLngBounds(latLngs);
+      
+      // Fit the map to these bounds with some padding
+      map.fitBounds(bounds, { 
+        padding: [50, 50],
+        maxZoom: 15 // Limit max zoom level
+      });
+    }
+  }, [map, points]);
+  
+  return null;
+};
 
 export const MapView: React.FC<MapViewProps> = ({ data }) => {
   // Calculate map center based on average of point coordinates
@@ -93,6 +116,9 @@ export const MapView: React.FC<MapViewProps> = ({ data }) => {
             </Popup>
           </Marker>
         ))}
+        
+        {/* Add component to automatically set bounds */}
+        <SetBoundsToMarkers points={data} />
       </MapContainer>
       
       <div className="absolute bottom-4 right-4 bg-white px-3 py-2 rounded-md shadow-sm text-sm z-[400]">
