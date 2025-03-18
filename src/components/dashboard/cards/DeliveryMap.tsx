@@ -65,10 +65,10 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, handleC
     const latDiff = maxLat - minLat;
     const lngDiff = maxLng - minLng;
     
-    // For small preview maps, adjust zoom to be a bit further out
-    if (latDiff > 0.05 || lngDiff > 0.05) return 11;
-    if (latDiff > 0.02 || lngDiff > 0.02) return 12;
-    return 13;
+    // For small preview maps on dashboard, make sure we can see all points
+    if (latDiff > 0.05 || lngDiff > 0.05) return 12;
+    if (latDiff > 0.02 || lngDiff > 0.02) return 13;
+    return 14;
   }, [points]);
 
   const customMarkerIcon = new L.Icon({

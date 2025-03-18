@@ -40,7 +40,7 @@ export const MapView: React.FC<MapViewProps> = ({ data }) => {
 
   // Calculate appropriate zoom level based on the spread of points
   const getBoundsZoom = useMemo(() => {
-    if (data.length <= 1) return 13; // Default zoom for single point
+    if (data.length <= 1) return 14; // Higher zoom for single point
     
     // Find min/max coordinates to establish bounds
     const lats = data.map(point => point.lat);
@@ -55,11 +55,11 @@ export const MapView: React.FC<MapViewProps> = ({ data }) => {
     const latDiff = maxLat - minLat;
     const lngDiff = maxLng - minLng;
     
-    // Adjust zoom based on distance (larger distance = lower zoom)
-    if (latDiff > 0.1 || lngDiff > 0.1) return 11;
-    if (latDiff > 0.05 || lngDiff > 0.05) return 12;
-    if (latDiff > 0.01 || lngDiff > 0.01) return 13;
-    return 14;
+    // More focused zoom levels
+    if (latDiff > 0.1 || lngDiff > 0.1) return 12;
+    if (latDiff > 0.05 || lngDiff > 0.05) return 13;
+    if (latDiff > 0.01 || lngDiff > 0.01) return 14;
+    return 15; // Much closer zoom for very nearby points
   }, [data]);
 
   const customMarkerIcon = new L.Icon({

@@ -62,7 +62,7 @@ const MapDetailView = () => {
 
   // Calculate appropriate zoom level based on the spread of points
   const getBoundsZoom = useMemo(() => {
-    if (mapPoints.length <= 1) return 14; // Default zoom for single point
+    if (mapPoints.length <= 1) return 15; // Higher zoom for single point
     
     // Find min/max coordinates to establish bounds
     const lats = mapPoints.map(point => point.lat);
@@ -77,11 +77,11 @@ const MapDetailView = () => {
     const latDiff = maxLat - minLat;
     const lngDiff = maxLng - minLng;
     
-    // Adjust zoom based on distance (larger distance = lower zoom)
-    if (latDiff > 0.1 || lngDiff > 0.1) return 12;
-    if (latDiff > 0.05 || lngDiff > 0.05) return 13;
-    if (latDiff > 0.01 || lngDiff > 0.01) return 14;
-    return 15;
+    // Updated zoom logic to get closer to the region
+    if (latDiff > 0.1 || lngDiff > 0.1) return 13;
+    if (latDiff > 0.05 || lngDiff > 0.05) return 14;
+    if (latDiff > 0.01 || lngDiff > 0.01) return 15;
+    return 16; // Much closer zoom for very nearby points
   }, [mapPoints]);
 
   const customMarkerIcon = new L.Icon({
