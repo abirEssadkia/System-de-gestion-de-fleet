@@ -1,8 +1,12 @@
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Filter, Calendar, Car, CheckSquare, Gauge, MapPin, BarChart, Download, Columns } from 'lucide-react';
+import { ChevronDown, ChevronUp, Filter, Calendar as CalendarIcon, Car, CheckSquare, Gauge, MapPin, BarChart, Download, Columns } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Selector } from './Selector';
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 interface FilterPanelProps {
   className?: string;
@@ -10,7 +14,8 @@ interface FilterPanelProps {
 
 export const FilterPanel = ({ className }: FilterPanelProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [dateRange, setDateRange] = useState({ start: '', end: '' });
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
   const [selectedVehicles, setSelectedVehicles] = useState<string[]>([]);
   const [statusFilters, setStatusFilters] = useState({
     running: true,
@@ -67,23 +72,56 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
               {/* Date Range */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-fleet-dark-gray flex items-center gap-2">
-                  <Calendar className="w-4 h-4" /> Date Range
+                  <CalendarIcon className="w-4 h-4" /> Date Range
                 </label>
                 <div className="grid grid-cols-2 gap-2">
-                  <input 
-                    type="date" 
-                    className="fleet-selector" 
-                    value={dateRange.start}
-                    onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                    placeholder="Start Date"
-                  />
-                  <input 
-                    type="date" 
-                    className="fleet-selector" 
-                    value={dateRange.end}
-                    onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                    placeholder="End Date"
-                  />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !startDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {startDate ? format(startDate, "dd/MM/yyyy") : "Start date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={startDate}
+                        onSelect={setStartDate}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !endDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {endDate ? format(endDate, "dd/MM/yyyy") : "End date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={endDate}
+                        onSelect={setEndDate}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
               
