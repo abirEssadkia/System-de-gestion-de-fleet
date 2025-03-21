@@ -1,27 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, BellRing, AlertTriangle, Clock, CheckCircle, Fuel, Map, Shield } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { alerts as initialAlerts, Alert } from '@/utils/alertsData';
 
 // Alert status types
 type AlertStatus = 'untreated' | 'in-progress' | 'treated';
 type AlertType = 'speed' | 'fuel' | 'activity' | 'geofence' | 'time' | 'all';
-
-// Alert data structure
-interface Alert {
-  id: number;
-  title: string;
-  description: string;
-  timestamp: string;
-  status: AlertStatus;
-  comment?: string;
-  type: AlertType;
-  value?: string;
-  vehicleId: string;
-  driverName?: string;
-  location?: string;
-}
 
 const AlertManagement = () => {
   const navigate = useNavigate();
@@ -29,97 +14,8 @@ const AlertManagement = () => {
   const queryParams = new URLSearchParams(location.search);
   const alertTypeParam = queryParams.get('type') as AlertType | null;
   
-  // Sample alert data
-  const [alerts, setAlerts] = useState<Alert[]>([
-    {
-      id: 1,
-      title: "Speed Limit Exceeded",
-      description: "Vehicle exceeded speed limit (105 km/h in 80 km/h zone)",
-      timestamp: "2023-11-10T09:23:45",
-      status: 'untreated',
-      type: 'speed',
-      value: "105 km/h",
-      vehicleId: "FL-7823",
-      driverName: "Mohammed Alami",
-      location: "N1 Highway, km 45"
-    },
-    {
-      id: 2,
-      title: "Fuel Level Critical",
-      description: "Vehicle reported critically low fuel level (5%)",
-      timestamp: "2023-11-10T10:15:20",
-      status: 'in-progress',
-      comment: "Driver has been notified to refuel",
-      type: 'fuel',
-      value: "5%",
-      vehicleId: "FL-4567",
-      driverName: "Yasmine Benkirane",
-      location: "Casablanca, Anfa district"
-    },
-    {
-      id: 3,
-      title: "Excessive Idle Time",
-      description: "Vehicle has been idle for more than 30 minutes",
-      timestamp: "2023-11-10T11:05:12",
-      status: 'treated',
-      comment: "Driver was on lunch break, confirmed by supervisor",
-      type: 'activity',
-      value: "45 minutes",
-      vehicleId: "FL-9012",
-      driverName: "Karim Tazi",
-      location: "Rest area, Marrakech highway"
-    },
-    {
-      id: 4,
-      title: "Geofence Violation",
-      description: "Vehicle left assigned area in Casablanca at 14:30",
-      timestamp: "2023-11-10T14:32:18",
-      status: 'untreated',
-      type: 'geofence',
-      value: "500m outside boundary",
-      vehicleId: "FL-6547",
-      driverName: "Leila Bennani",
-      location: "Mohammedia outskirts"
-    },
-    {
-      id: 5,
-      title: "Excessive Drive Time",
-      description: "Driver exceeded maximum allowed drive time (10 hours)",
-      timestamp: "2023-11-09T18:45:30",
-      status: 'in-progress',
-      comment: "Supervisor contacted driver to take mandatory rest",
-      type: 'time',
-      value: "10h 35m",
-      vehicleId: "FL-3210",
-      driverName: "Omar Bouazza",
-      location: "Tangier - Agadir route"
-    },
-    {
-      id: 6,
-      title: "Speed Limit Exceeded",
-      description: "Vehicle exceeded speed limit (95 km/h in 70 km/h zone)",
-      timestamp: "2023-11-09T16:12:40",
-      status: 'treated',
-      comment: "Driver received warning, acknowledged the violation",
-      type: 'speed',
-      value: "95 km/h",
-      vehicleId: "FL-3452",
-      driverName: "Fatima Zohra",
-      location: "Rabat city center"
-    },
-    {
-      id: 7,
-      title: "Geofence Violation",
-      description: "Vehicle entered restricted area in Rabat at 09:15",
-      timestamp: "2023-11-09T09:17:22",
-      status: 'untreated',
-      type: 'geofence',
-      value: "Unauthorized zone entry",
-      vehicleId: "FL-8732",
-      driverName: "Hassan Cherkaoui",
-      location: "Government restricted area, Rabat"
-    },
-  ]);
+  // Use alerts from the utility file
+  const [alerts, setAlerts] = useState<Alert[]>(initialAlerts);
 
   // State for the currently edited alert
   const [editingAlert, setEditingAlert] = useState<Alert | null>(null);
@@ -201,7 +97,7 @@ const AlertManagement = () => {
       case 'activity':
         return <Clock className="w-5 h-5 text-orange-500" />;
       case 'geofence':
-        return <Map className="w-5 h-5 text-red-500" />;
+        return <Map className="w-5 h-5 text-violet-500" />;
       case 'time':
         return <Clock className="w-5 h-5 text-blue-500" />;
       default:
@@ -219,6 +115,23 @@ const AlertManagement = () => {
       case 'time': return 'Drive Time';
       default: return 'All Types';
     }
+  };
+
+  // Handle view on map click
+  const handleViewOnMap = (type: AlertType) => {
+    const alertPoints = alerts
+      .filter(alert => type === 'all' || alert.type === type)
+      .map(alert => ({
+        lat: alert.coordinates?.lat || 0,
+        lng: alert.coordinates?.lng || 0,
+        description: `${alert.title} (${alert.vehicleId}): ${alert.description}`,
+        type: alert.type
+      }));
+    
+    // Encode data for URL
+    const data = encodeURIComponent(JSON.stringify(alertPoints));
+    const title = `${getAlertTypeName(type)} Alerts`;
+    navigate(`/map-detail?title=${encodeURIComponent(title)}&data=${data}&type=${type}`);
   };
 
   return (
@@ -254,6 +167,14 @@ const AlertManagement = () => {
             </div>
             
             <div className="mt-4 md:mt-0 space-y-3 md:space-y-0">
+              {/* View on Map Button */}
+              <button
+                onClick={() => handleViewOnMap(typeFilter)}
+                className="px-4 py-2 rounded-md text-sm font-medium transition-colors bg-fleet-navy text-white hover:bg-fleet-blue mr-2"
+              >
+                <Map className="w-4 h-4 inline mr-1" /> View on Map
+              </button>
+              
               {/* Alert Type Filter */}
               <div className="flex space-x-2 mb-3 md:mb-0 md:justify-end">
                 <button 

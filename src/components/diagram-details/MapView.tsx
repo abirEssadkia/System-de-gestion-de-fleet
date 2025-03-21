@@ -3,8 +3,9 @@ import React, { useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { AlertTriangle, BellDot, AlertCircle, Siren } from 'lucide-react';
+import { AlertTriangle, BellDot, AlertCircle, Siren, Fuel, Clock, Map } from 'lucide-react';
 import { renderToString } from 'react-dom/server';
+import { getAlertPointsByType } from '@/utils/alertsData';
 
 // No need for default icons since we'll use custom ones
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -13,10 +14,12 @@ interface Point {
   lat: number;
   lng: number;
   description?: string;
+  type?: 'speed' | 'fuel' | 'activity' | 'geofence' | 'time';
 }
 
 interface MapViewProps {
-  data: Point[];
+  data?: Point[];
+  type?: 'speed' | 'fuel' | 'activity' | 'geofence' | 'time' | 'all';
 }
 
 // Component to set bounds of map to include all markers
@@ -42,24 +45,30 @@ const SetBoundsToMarkers = ({ points }: { points: Point[] }) => {
   return null;
 };
 
-export const MapView: React.FC<MapViewProps> = ({ data }) => {
+export const MapView: React.FC<MapViewProps> = ({ data, type = 'all' }) => {
+  // Use the alerts data if no data is provided
+  const mapPoints = useMemo(() => {
+    if (data && data.length > 0) return data;
+    return getAlertPointsByType(type);
+  }, [data, type]);
+
   // Calculate map center based on average of point coordinates
   const getMapCenter = useMemo((): [number, number] => {
-    if (data.length === 0) return [31.7917, -7.0926]; // Default center of Morocco
+    if (mapPoints.length === 0) return [31.7917, -7.0926]; // Default center of Morocco
 
-    const sumLat = data.reduce((sum, point) => sum + point.lat, 0);
-    const sumLng = data.reduce((sum, point) => sum + point.lng, 0);
+    const sumLat = mapPoints.reduce((sum, point) => sum + point.lat, 0);
+    const sumLng = mapPoints.reduce((sum, point) => sum + point.lng, 0);
     
-    return [sumLat / data.length, sumLng / data.length];
-  }, [data]);
+    return [sumLat / mapPoints.length, sumLng / mapPoints.length];
+  }, [mapPoints]);
 
   // Calculate appropriate zoom level based on the spread of points
   const getBoundsZoom = useMemo(() => {
-    if (data.length <= 1) return 14; // Higher zoom for single point
+    if (mapPoints.length <= 1) return 14; // Higher zoom for single point
     
     // Find min/max coordinates to establish bounds
-    const lats = data.map(point => point.lat);
-    const lngs = data.map(point => point.lng);
+    const lats = mapPoints.map(point => point.lat);
+    const lngs = mapPoints.map(point => point.lng);
     
     const minLat = Math.min(...lats);
     const maxLat = Math.max(...lats);
@@ -75,29 +84,39 @@ export const MapView: React.FC<MapViewProps> = ({ data }) => {
     if (latDiff > 0.05 || lngDiff > 0.05) return 13;
     if (latDiff > 0.01 || lngDiff > 0.01) return 14;
     return 15; // Much closer zoom for very nearby points
-  }, [data]);
+  }, [mapPoints]);
 
   // Generate different alert icons for variety
-  const createAlertIcon = (index: number) => {
-    // Choose different alert icons based on index modulo
-    const iconType = index % 4;
+  const createAlertIcon = (index: number, pointType?: string) => {
+    let iconType: string;
+    
+    // If the point has a specific type, use it, otherwise use a cycling pattern
+    if (pointType) {
+      iconType = pointType;
+    } else {
+      iconType = ['speed', 'fuel', 'activity', 'geofence', 'time'][index % 5] || 'speed';
+    }
+    
     let iconHtml;
     
     switch(iconType) {
-      case 0:
+      case 'speed':
         iconHtml = renderToString(<AlertTriangle className="h-8 w-8 text-red-500 fill-red-100" />);
         break;
-      case 1:
-        iconHtml = renderToString(<AlertCircle className="h-8 w-8 text-amber-500 fill-amber-100" />);
+      case 'fuel':
+        iconHtml = renderToString(<Fuel className="h-8 w-8 text-amber-500 fill-amber-100" />);
         break;
-      case 2:
-        iconHtml = renderToString(<BellDot className="h-8 w-8 text-orange-500 fill-orange-100" />);
+      case 'activity':
+        iconHtml = renderToString(<Clock className="h-8 w-8 text-orange-500 fill-orange-100" />);
         break;
-      case 3:
-        iconHtml = renderToString(<Siren className="h-8 w-8 text-red-600 fill-red-100" />);
+      case 'geofence':
+        iconHtml = renderToString(<Map className="h-8 w-8 text-violet-500 fill-violet-100" />);
+        break;
+      case 'time':
+        iconHtml = renderToString(<Clock className="h-8 w-8 text-blue-500 fill-blue-100" />);
         break;
       default:
-        iconHtml = renderToString(<AlertTriangle className="h-8 w-8 text-red-500 fill-red-100" />);
+        iconHtml = renderToString(<AlertCircle className="h-8 w-8 text-red-500 fill-red-100" />);
     }
     
     return L.divIcon({
@@ -121,11 +140,11 @@ export const MapView: React.FC<MapViewProps> = ({ data }) => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
         
-        {data.map((point, index) => (
+        {mapPoints.map((point, index) => (
           <Marker 
             key={index} 
             position={[point.lat, point.lng]}
-            icon={createAlertIcon(index)}
+            icon={createAlertIcon(index, point.type)}
           >
             <Popup>
               {point.description || `Issue at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}
@@ -134,11 +153,11 @@ export const MapView: React.FC<MapViewProps> = ({ data }) => {
         ))}
         
         {/* Add component to automatically set bounds */}
-        <SetBoundsToMarkers points={data} />
+        <SetBoundsToMarkers points={mapPoints} />
       </MapContainer>
       
       <div className="absolute bottom-4 right-4 bg-white px-3 py-2 rounded-md shadow-sm text-sm z-[400]">
-        {data.length} delivery/pickup issue{data.length > 1 ? 's' : ''} detected
+        {mapPoints.length} alert{mapPoints.length > 1 ? 's' : ''} detected
       </div>
     </div>
   );

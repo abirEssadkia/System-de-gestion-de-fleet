@@ -1,16 +1,18 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, AlertTriangle, BellDot, AlertCircle, Siren } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, BellDot, AlertCircle, Siren, Fuel, Clock, Map } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { renderToString } from 'react-dom/server';
+import { getAlertPointsByType } from '@/utils/alertsData';
 
 interface Point {
   lat: number;
   lng: number;
   description?: string;
+  type?: 'speed' | 'fuel' | 'activity' | 'geofence' | 'time';
 }
 
 // Component to set bounds of map to include all markers
@@ -40,20 +42,37 @@ const MapDetailView = () => {
   const [searchParams] = useSearchParams();
   const [mapPoints, setMapPoints] = useState<Point[]>([]);
   const [title, setTitle] = useState('');
+  const [alertType, setAlertType] = useState<'speed' | 'fuel' | 'activity' | 'geofence' | 'time' | 'all'>('all');
   const navigate = useNavigate();
   
   useEffect(() => {
     const title = searchParams.get('title');
     const dataString = searchParams.get('data');
+    const typeParam = searchParams.get('type') as 'speed' | 'fuel' | 'activity' | 'geofence' | 'time' | 'all' || 'all';
     
-    if (title && dataString) {
+    setAlertType(typeParam);
+    
+    if (title) {
+      setTitle(title);
+    }
+    
+    if (dataString) {
       try {
         const data = JSON.parse(dataString);
-        setMapPoints(data);
-        setTitle(title);
+        if (Array.isArray(data) && data.length > 0) {
+          setMapPoints(data);
+        } else {
+          // If no valid data, use the alert data
+          setMapPoints(getAlertPointsByType(typeParam));
+        }
       } catch (error) {
         console.error('Error parsing map data', error);
+        // Fallback to alert data
+        setMapPoints(getAlertPointsByType(typeParam));
       }
+    } else {
+      // If no data parameter, use the alert data
+      setMapPoints(getAlertPointsByType(typeParam));
     }
   }, [searchParams]);
 
@@ -96,26 +115,37 @@ const MapDetailView = () => {
   }, [mapPoints]);
 
   // Generate different alert icons for variety
-  const createAlertIcon = (index: number) => {
+  const createAlertIcon = (index: number, pointType?: string) => {
     // For detailed view, use larger icons
-    const iconType = index % 4;
+    let iconType: string;
+    
+    // If the point has a specific type, use it, otherwise use a cycling pattern
+    if (pointType) {
+      iconType = pointType;
+    } else {
+      iconType = ['speed', 'fuel', 'activity', 'geofence', 'time'][index % 5] || 'speed';
+    }
+    
     let iconHtml;
     
     switch(iconType) {
-      case 0:
+      case 'speed':
         iconHtml = renderToString(<AlertTriangle className="h-10 w-10 text-red-500 fill-red-100" />);
         break;
-      case 1:
-        iconHtml = renderToString(<AlertCircle className="h-10 w-10 text-amber-500 fill-amber-100" />);
+      case 'fuel':
+        iconHtml = renderToString(<Fuel className="h-10 w-10 text-amber-500 fill-amber-100" />);
         break;
-      case 2:
-        iconHtml = renderToString(<BellDot className="h-10 w-10 text-orange-500 fill-orange-100" />);
+      case 'activity':
+        iconHtml = renderToString(<Clock className="h-10 w-10 text-orange-500 fill-orange-100" />);
         break;
-      case 3:
-        iconHtml = renderToString(<Siren className="h-10 w-10 text-red-600 fill-red-100" />);
+      case 'geofence':
+        iconHtml = renderToString(<Map className="h-10 w-10 text-violet-500 fill-violet-100" />);
+        break;
+      case 'time':
+        iconHtml = renderToString(<Clock className="h-10 w-10 text-blue-500 fill-blue-100" />);
         break;
       default:
-        iconHtml = renderToString(<AlertTriangle className="h-10 w-10 text-red-500 fill-red-100" />);
+        iconHtml = renderToString(<AlertCircle className="h-10 w-10 text-red-500 fill-red-100" />);
     }
     
     return L.divIcon({
@@ -125,6 +155,24 @@ const MapDetailView = () => {
       iconAnchor: [20, 40],
       popupAnchor: [0, -40]
     });
+  };
+
+  // Get the right icon component based on alert type
+  const getIconComponent = (type: string) => {
+    switch(type) {
+      case 'speed':
+        return <AlertTriangle className="w-5 h-5 text-red-500" />;
+      case 'fuel':
+        return <Fuel className="w-5 h-5 text-amber-500" />;
+      case 'activity':
+        return <Clock className="w-5 h-5 text-orange-500" />;
+      case 'geofence':
+        return <Map className="w-5 h-5 text-violet-500" />;
+      case 'time':
+        return <Clock className="w-5 h-5 text-blue-500" />;
+      default:
+        return <AlertCircle className="w-5 h-5 text-red-500" />;
+    }
   };
   
   return (
@@ -138,9 +186,9 @@ const MapDetailView = () => {
           Back to Dashboard
         </button>
         
-        <h1 className="text-2xl font-bold text-fleet-navy mb-2">{title} Delivery Issues</h1>
+        <h1 className="text-2xl font-bold text-fleet-navy mb-2">{title || 'Alert Map'}</h1>
         <p className="text-fleet-dark-gray mb-6">
-          Detailed view of delivery and pickup issues in {title}
+          Detailed view of alerts {alertType !== 'all' ? `of type ${alertType}` : ''} on the map
         </p>
         
         <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -160,7 +208,7 @@ const MapDetailView = () => {
                 <Marker 
                   key={index} 
                   position={[point.lat, point.lng]}
-                  icon={createAlertIcon(index)}
+                  icon={createAlertIcon(index, point.type)}
                 >
                   <Popup>
                     {point.description || `Issue at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}
@@ -178,47 +226,22 @@ const MapDetailView = () => {
             <h2 className="text-xl font-semibold mb-4">Location Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <h3 className="text-lg font-medium mb-2">Issue Summary</h3>
+                <h3 className="text-lg font-medium mb-2">Alert Summary</h3>
                 <p className="text-fleet-dark-gray">
-                  This map shows all delivery and pickup issues in {title}. Each marker represents a location 
-                  where a problem was encountered. Click on markers to see detailed information about each issue.
+                  This map shows all {alertType !== 'all' ? `${alertType} ` : ''}alerts. 
+                  Each marker represents a location where an alert was generated. 
+                  Click on markers to see detailed information about each alert.
                 </p>
               </div>
               <div>
-                <h3 className="text-lg font-medium mb-2">Issue List</h3>
+                <h3 className="text-lg font-medium mb-2">Alert List</h3>
                 <ul className="space-y-2 text-fleet-dark-gray">
                   {mapPoints.map((point, index) => {
-                    // Use same alert icon styles for consistency in the list
-                    const iconType = index % 4;
-                    let IconComponent;
-                    let iconColor;
-                    
-                    switch(iconType) {
-                      case 0:
-                        IconComponent = AlertTriangle;
-                        iconColor = "text-red-500";
-                        break;
-                      case 1:
-                        IconComponent = AlertCircle;
-                        iconColor = "text-amber-500";
-                        break;
-                      case 2:
-                        IconComponent = BellDot;
-                        iconColor = "text-orange-500";
-                        break;
-                      case 3:
-                        IconComponent = Siren;
-                        iconColor = "text-red-600";
-                        break;
-                      default:
-                        IconComponent = AlertTriangle;
-                        iconColor = "text-red-500";
-                    }
-                    
+                    const pointType = point.type || ['speed', 'fuel', 'activity', 'geofence', 'time'][index % 5] || 'speed';
                     return (
                       <li key={index} className="flex items-start">
-                        <IconComponent className={`w-5 h-5 mt-0.5 mr-2 flex-shrink-0 ${iconColor}`} />
-                        <span>{point.description || `Issue at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}</span>
+                        {getIconComponent(pointType)}
+                        <span className="ml-2">{point.description || `Alert at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}</span>
                       </li>
                     );
                   })}
