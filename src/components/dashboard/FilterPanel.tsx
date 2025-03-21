@@ -7,12 +7,29 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { AlertType } from '@/utils/alertsData';
 
 interface FilterPanelProps {
   className?: string;
+  onFilterChange?: (filters: FilterOptions) => void;
 }
 
-export const FilterPanel = ({ className }: FilterPanelProps) => {
+export interface FilterOptions {
+  startDate?: Date;
+  endDate?: Date;
+  selectedVehicles: string[];
+  statusFilters: {
+    running: boolean;
+    idle: boolean;
+    stopped: boolean;
+  };
+  speedThreshold: string;
+  selectedZone: string;
+  chartType: string;
+  alertType?: AlertType | 'all';
+}
+
+export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
@@ -25,21 +42,88 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
   const [speedThreshold, setSpeedThreshold] = useState('');
   const [selectedZone, setSelectedZone] = useState('');
   const [chartType, setChartType] = useState('line');
+  const [alertType, setAlertType] = useState<AlertType | 'all'>('all');
   
   // Sample data
-  const vehicles = ['Vehicle 1', 'Vehicle 2', 'Vehicle 3', 'Vehicle 4', 'Vehicle 5'];
-  const zones = ['Zone A', 'Zone B', 'Zone C', 'Zone D'];
+  const vehicles = ['Vehicle 1', 'Vehicle 2', 'Vehicle 3', 'Vehicle 4', 'Vehicle 5', 'FL-7823', 'FL-4567', 'FL-9012', 'FL-6547', 'FL-3210', 'FL-3452', 'FL-8732'];
+  const zones = ['Zone A', 'Zone B', 'Zone C', 'Zone D', 'Rabat', 'Casablanca', 'Marrakech', 'Tangier'];
   const chartTypes = ['Bar', 'Line', 'Pie'];
   const exportOptions = ['CSV', 'Excel', 'PDF'];
   const columnOptions = ['Status', 'Speed', 'Location', 'Driver', 'Time'];
+  const alertTypes = [
+    { value: 'all', label: 'All Alerts' },
+    { value: 'speed', label: 'Speed Alerts' },
+    { value: 'fuel', label: 'Fuel Alerts' },
+    { value: 'activity', label: 'Activity Alerts' },
+    { value: 'geofence', label: 'Geofence Alerts' },
+    { value: 'time', label: 'Drive Time Alerts' }
+  ];
 
   const togglePanel = () => setIsOpen(!isOpen);
 
   const handleStatusChange = (status: keyof typeof statusFilters) => {
-    setStatusFilters(prev => ({
-      ...prev,
-      [status]: !prev[status]
-    }));
+    const newStatusFilters = {
+      ...statusFilters,
+      [status]: !statusFilters[status]
+    };
+    setStatusFilters(newStatusFilters);
+    notifyFilterChange(newStatusFilters);
+  };
+
+  const handleAlertTypeChange = (value: AlertType | 'all') => {
+    setAlertType(value);
+    notifyFilterChange(undefined, value);
+  };
+
+  const notifyFilterChange = (newStatusFilters?: typeof statusFilters, newAlertType?: AlertType | 'all') => {
+    if (onFilterChange) {
+      onFilterChange({
+        startDate,
+        endDate,
+        selectedVehicles,
+        statusFilters: newStatusFilters || statusFilters,
+        speedThreshold,
+        selectedZone,
+        chartType,
+        alertType: newAlertType || alertType
+      });
+    }
+  };
+
+  const handleResetFilters = () => {
+    setStartDate(undefined);
+    setEndDate(undefined);
+    setSelectedVehicles([]);
+    setStatusFilters({
+      running: true,
+      idle: true,
+      stopped: true,
+    });
+    setSpeedThreshold('');
+    setSelectedZone('');
+    setChartType('line');
+    setAlertType('all');
+
+    if (onFilterChange) {
+      onFilterChange({
+        startDate: undefined,
+        endDate: undefined,
+        selectedVehicles: [],
+        statusFilters: {
+          running: true,
+          idle: true,
+          stopped: true,
+        },
+        speedThreshold: '',
+        selectedZone: '',
+        chartType: 'line',
+        alertType: 'all'
+      });
+    }
+  };
+
+  const handleApplyFilters = () => {
+    notifyFilterChange();
   };
 
   return (
@@ -92,7 +176,10 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
                       <Calendar
                         mode="single"
                         selected={startDate}
-                        onSelect={setStartDate}
+                        onSelect={(date) => {
+                          setStartDate(date);
+                          if (date && onFilterChange) notifyFilterChange();
+                        }}
                         initialFocus
                         className="pointer-events-auto"
                       />
@@ -116,7 +203,10 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
                       <Calendar
                         mode="single"
                         selected={endDate}
-                        onSelect={setEndDate}
+                        onSelect={(date) => {
+                          setEndDate(date);
+                          if (date && onFilterChange) notifyFilterChange();
+                        }}
                         initialFocus
                         className="pointer-events-auto"
                       />
@@ -136,7 +226,9 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
                   placeholder="Select vehicles"
                   onChange={(value) => {
                     if (value && !selectedVehicles.includes(value)) {
-                      setSelectedVehicles([...selectedVehicles, value]);
+                      const newSelectedVehicles = [...selectedVehicles, value];
+                      setSelectedVehicles(newSelectedVehicles);
+                      if (onFilterChange) notifyFilterChange();
                     }
                   }}
                 />
@@ -147,7 +239,11 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
                         {vehicle}
                         <button 
                           className="ml-1 text-fleet-blue/70 hover:text-fleet-blue"
-                          onClick={() => setSelectedVehicles(selectedVehicles.filter(v => v !== vehicle))}
+                          onClick={() => {
+                            const newSelectedVehicles = selectedVehicles.filter(v => v !== vehicle);
+                            setSelectedVehicles(newSelectedVehicles);
+                            if (onFilterChange) notifyFilterChange();
+                          }}
                         >
                           ×
                         </button>
@@ -166,7 +262,10 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
                   type="number" 
                   className="fleet-selector" 
                   value={speedThreshold}
-                  onChange={(e) => setSpeedThreshold(e.target.value)}
+                  onChange={(e) => {
+                    setSpeedThreshold(e.target.value);
+                    if (onFilterChange) notifyFilterChange();
+                  }}
                   placeholder="Enter max speed"
                   min="0"
                 />
@@ -220,6 +319,29 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
                 </div>
               </div>
               
+              {/* Alert Type Filters */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-fleet-dark-gray flex items-center gap-2">
+                  <BellDot className="w-4 h-4" /> Alert Type
+                </label>
+                <div className="grid grid-cols-2 gap-2 mb-2">
+                  {alertTypes.map((type) => (
+                    <button
+                      key={type.value}
+                      onClick={() => handleAlertTypeChange(type.value as AlertType | 'all')}
+                      className={cn(
+                        "px-3 py-1.5 text-xs rounded-md border transition-colors",
+                        alertType === type.value
+                          ? "bg-fleet-blue text-white border-fleet-blue"
+                          : "bg-white text-fleet-dark-gray border-gray-200 hover:border-gray-300"
+                      )}
+                    >
+                      {type.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
               {/* Geofencing Zones */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-fleet-dark-gray flex items-center gap-2">
@@ -229,7 +351,10 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
                   label="Zones" 
                   options={zones}
                   value={selectedZone}
-                  onChange={setSelectedZone}
+                  onChange={(value) => {
+                    setSelectedZone(value);
+                    if (onFilterChange) notifyFilterChange();
+                  }}
                   placeholder="Select zone"
                 />
               </div>
@@ -248,7 +373,10 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
                   {chartTypes.map((type) => (
                     <button
                       key={type}
-                      onClick={() => setChartType(type.toLowerCase())}
+                      onClick={() => {
+                        setChartType(type.toLowerCase());
+                        if (onFilterChange) notifyFilterChange();
+                      }}
                       className={cn(
                         "px-3 py-1.5 text-sm rounded-md border transition-colors",
                         chartType === type.toLowerCase()
@@ -306,10 +434,16 @@ export const FilterPanel = ({ className }: FilterPanelProps) => {
           
           {/* Action Buttons */}
           <div className="mt-6 flex justify-end space-x-3">
-            <button className="px-4 py-2 border border-gray-200 rounded-md text-fleet-dark-gray hover:bg-gray-50 transition-colors">
+            <button 
+              className="px-4 py-2 border border-gray-200 rounded-md text-fleet-dark-gray hover:bg-gray-50 transition-colors"
+              onClick={handleResetFilters}
+            >
               Reset Filters
             </button>
-            <button className="px-4 py-2 bg-fleet-blue text-white rounded-md hover:bg-fleet-blue/90 transition-colors">
+            <button 
+              className="px-4 py-2 bg-fleet-blue text-white rounded-md hover:bg-fleet-blue/90 transition-colors"
+              onClick={handleApplyFilters}
+            >
               Apply Filters
             </button>
           </div>

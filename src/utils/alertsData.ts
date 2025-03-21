@@ -1,4 +1,6 @@
 
+export type AlertType = 'speed' | 'fuel' | 'activity' | 'geofence' | 'time' | 'all';
+
 export interface Alert {
   id: number;
   title: string;
@@ -6,7 +8,7 @@ export interface Alert {
   timestamp: string;
   status: 'untreated' | 'in-progress' | 'treated';
   comment?: string;
-  type: 'speed' | 'fuel' | 'activity' | 'geofence' | 'time' | 'all';
+  type: 'speed' | 'fuel' | 'activity' | 'geofence' | 'time';
   value?: string;
   vehicleId: string;
   driverName?: string;
@@ -138,7 +140,7 @@ export const alerts: Alert[] = [
 ];
 
 // Generate alert points for maps based on type
-export const getAlertPointsByType = (type: 'speed' | 'fuel' | 'activity' | 'geofence' | 'time' | 'all' = 'all') => {
+export const getAlertPointsByType = (type: AlertType = 'all') => {
   const filteredAlerts = type === 'all' 
     ? alerts 
     : alerts.filter(alert => alert.type === type);
@@ -146,7 +148,8 @@ export const getAlertPointsByType = (type: 'speed' | 'fuel' | 'activity' | 'geof
   return filteredAlerts.map(alert => ({
     lat: alert.coordinates?.lat || 0,
     lng: alert.coordinates?.lng || 0,
-    description: `${alert.title} (${alert.vehicleId}): ${alert.description}`
+    description: `${alert.title} (${alert.vehicleId}): ${alert.description}`,
+    type: alert.type
   }));
 };
 

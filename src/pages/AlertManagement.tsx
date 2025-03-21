@@ -1,8 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, BellRing, AlertTriangle, Clock, CheckCircle, Fuel, Map, Shield } from 'lucide-react';
+import { ArrowLeft, BellRing, AlertTriangle, Clock, CheckCircle, Fuel, Map, Shield, BellDot } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { alerts as initialAlerts, Alert } from '@/utils/alertsData';
+import { FilterPanel, FilterOptions } from '@/components/dashboard/FilterPanel';
+import { MapView } from '@/components/diagram-details/MapView';
 
 // Alert status types
 type AlertStatus = 'untreated' | 'in-progress' | 'treated';
@@ -16,6 +19,19 @@ const AlertManagement = () => {
   
   // Use alerts from the utility file
   const [alerts, setAlerts] = useState<Alert[]>(initialAlerts);
+  const [filteredAlerts, setFilteredAlerts] = useState<Alert[]>(initialAlerts);
+  const [filters, setFilters] = useState<FilterOptions>({
+    selectedVehicles: [],
+    statusFilters: {
+      running: true,
+      idle: true,
+      stopped: true,
+    },
+    speedThreshold: '',
+    selectedZone: '',
+    chartType: 'line',
+    alertType: 'all',
+  });
 
   // State for the currently edited alert
   const [editingAlert, setEditingAlert] = useState<Alert | null>(null);
@@ -30,10 +46,58 @@ const AlertManagement = () => {
   useEffect(() => {
     if (alertTypeParam && ['speed', 'fuel', 'activity', 'geofence', 'time'].includes(alertTypeParam)) {
       setTypeFilter(alertTypeParam);
+      // Update filters state to match URL param
+      setFilters(prev => ({
+        ...prev,
+        alertType: alertTypeParam
+      }));
     } else {
       setTypeFilter('all');
     }
   }, [alertTypeParam]);
+
+  // Apply filters whenever filter state changes
+  useEffect(() => {
+    let result = [...alerts];
+    
+    // Filter by alert status
+    if (statusFilter !== 'all') {
+      result = result.filter(alert => alert.status === statusFilter);
+    }
+    
+    // Filter by alert type
+    if (typeFilter !== 'all') {
+      result = result.filter(alert => alert.type === typeFilter);
+    }
+    
+    // Apply additional filters from the FilterPanel
+    if (filters.selectedVehicles.length > 0) {
+      result = result.filter(alert => filters.selectedVehicles.includes(alert.vehicleId));
+    }
+    
+    if (filters.startDate) {
+      const startDate = new Date(filters.startDate);
+      result = result.filter(alert => new Date(alert.timestamp) >= startDate);
+    }
+    
+    if (filters.endDate) {
+      const endDate = new Date(filters.endDate);
+      endDate.setHours(23, 59, 59, 999); // End of day
+      result = result.filter(alert => new Date(alert.timestamp) <= endDate);
+    }
+    
+    if (filters.selectedZone) {
+      result = result.filter(alert => 
+        alert.location?.toLowerCase().includes(filters.selectedZone.toLowerCase())
+      );
+    }
+    
+    if (filters.alertType !== 'all') {
+      result = result.filter(alert => alert.type === filters.alertType);
+    }
+    
+    setFilteredAlerts(result);
+  }, [alerts, statusFilter, typeFilter, filters]);
 
   // Handle the status change
   const handleStatusChange = (alert: Alert, newStatus: AlertStatus) => {
@@ -68,12 +132,14 @@ const AlertManagement = () => {
     setCommentText('');
   };
 
-  // Filter alerts based on selected status and type
-  const filteredAlerts = alerts.filter(alert => {
-    const statusMatch = statusFilter === 'all' || alert.status === statusFilter;
-    const typeMatch = typeFilter === 'all' || alert.type === typeFilter;
-    return statusMatch && typeMatch;
-  });
+  // Handle filter changes from the FilterPanel component
+  const handleFilterChange = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
+    // Update type filter if alertType changes
+    if (newFilters.alertType !== filters.alertType) {
+      setTypeFilter(newFilters.alertType || 'all');
+    }
+  };
 
   // Get status icon and color
   const getStatusInfo = (status: AlertStatus) => {
@@ -119,7 +185,7 @@ const AlertManagement = () => {
 
   // Handle view on map click
   const handleViewOnMap = (type: AlertType) => {
-    const alertPoints = alerts
+    const alertPoints = filteredAlerts
       .filter(alert => type === 'all' || alert.type === type)
       .map(alert => ({
         lat: alert.coordinates?.lat || 0,
@@ -155,6 +221,18 @@ const AlertManagement = () => {
       </div>
       
       <main className="container mx-auto px-4 py-6">
+        {/* Add FilterPanel */}
+        <FilterPanel onFilterChange={handleFilterChange} />
+        
+        {/* Map visualization of currently filtered alerts */}
+        <div className="bg-white rounded-xl shadow-sm mb-6 p-6">
+          <h2 className="text-xl font-bold text-fleet-navy mb-4">Alert Map</h2>
+          <MapView 
+            type={typeFilter} 
+            filters={filters}
+          />
+        </div>
+        
         <div className="bg-white rounded-xl shadow-sm mb-6 p-6">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
             <div>
@@ -467,3 +545,4 @@ const AlertManagement = () => {
 };
 
 export default AlertManagement;
+

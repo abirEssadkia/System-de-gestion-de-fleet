@@ -1,11 +1,11 @@
-
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { AlertTriangle, BellDot, AlertCircle, Siren, Fuel, Clock, Map } from 'lucide-react';
+import { AlertTriangle, BellDot, AlertCircle, Siren, Fuel, Clock, Map, BellRing } from 'lucide-react';
 import { renderToString } from 'react-dom/server';
-import { getAlertPointsByType } from '@/utils/alertsData';
+import { getAlertPointsByType, alerts as allAlerts, Alert } from '@/utils/alertsData';
+import { FilterOptions } from '@/components/dashboard/FilterPanel';
 
 // No need for default icons since we'll use custom ones
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -20,6 +20,7 @@ interface Point {
 interface MapViewProps {
   data?: Point[];
   type?: 'speed' | 'fuel' | 'activity' | 'geofence' | 'time' | 'all';
+  filters?: FilterOptions;
 }
 
 // Component to set bounds of map to include all markers
@@ -45,12 +46,60 @@ const SetBoundsToMarkers = ({ points }: { points: Point[] }) => {
   return null;
 };
 
-export const MapView: React.FC<MapViewProps> = ({ data, type = 'all' }) => {
-  // Use the alerts data if no data is provided
+export const MapView: React.FC<MapViewProps> = ({ data, type = 'all', filters }) => {
+  // Filter alerts based on the provided filters
   const mapPoints = useMemo(() => {
+    // If data is explicitly provided, use it
     if (data && data.length > 0) return data;
-    return getAlertPointsByType(type);
-  }, [data, type]);
+    
+    // Otherwise, apply filters to the alerts data
+    let filteredAlerts = [...allAlerts];
+    
+    // Filter by alert type (from prop or filter)
+    const alertType = filters?.alertType || type;
+    if (alertType !== 'all') {
+      filteredAlerts = filteredAlerts.filter(alert => alert.type === alertType);
+    }
+    
+    // Filter by vehicle if selected
+    if (filters?.selectedVehicles && filters.selectedVehicles.length > 0) {
+      filteredAlerts = filteredAlerts.filter(alert => 
+        filters.selectedVehicles.includes(alert.vehicleId)
+      );
+    }
+    
+    // Filter by date range
+    if (filters?.startDate) {
+      const startDate = new Date(filters.startDate);
+      filteredAlerts = filteredAlerts.filter(alert => 
+        new Date(alert.timestamp) >= startDate
+      );
+    }
+    
+    if (filters?.endDate) {
+      const endDate = new Date(filters.endDate);
+      // Set to end of day
+      endDate.setHours(23, 59, 59, 999);
+      filteredAlerts = filteredAlerts.filter(alert => 
+        new Date(alert.timestamp) <= endDate
+      );
+    }
+    
+    // Filter by location/zone if selected
+    if (filters?.selectedZone) {
+      filteredAlerts = filteredAlerts.filter(alert => 
+        alert.location?.includes(filters.selectedZone)
+      );
+    }
+    
+    // Convert filtered alerts to map points
+    return filteredAlerts.map(alert => ({
+      lat: alert.coordinates?.lat || 0,
+      lng: alert.coordinates?.lng || 0,
+      description: `${alert.title} (${alert.vehicleId}): ${alert.description}`,
+      type: alert.type
+    }));
+  }, [data, type, filters]);
 
   // Calculate map center based on average of point coordinates
   const getMapCenter = useMemo((): [number, number] => {
