@@ -3,19 +3,11 @@ import React, { useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { AlertTriangle, BellDot, AlertCircle, Siren } from 'lucide-react';
+import { renderToString } from 'react-dom/server';
 
-// Fix for Leaflet default icon issue
-import icon from 'leaflet/dist/images/marker-icon.png';
+// No need for default icons since we'll use custom ones
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41]
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
 
 interface Point {
   lat: number;
@@ -85,13 +77,37 @@ export const MapView: React.FC<MapViewProps> = ({ data }) => {
     return 15; // Much closer zoom for very nearby points
   }, [data]);
 
-  const customMarkerIcon = new L.Icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-  });
+  // Generate different alert icons for variety
+  const createAlertIcon = (index: number) => {
+    // Choose different alert icons based on index modulo
+    const iconType = index % 4;
+    let iconHtml;
+    
+    switch(iconType) {
+      case 0:
+        iconHtml = renderToString(<AlertTriangle className="h-8 w-8 text-red-500 fill-red-100" />);
+        break;
+      case 1:
+        iconHtml = renderToString(<AlertCircle className="h-8 w-8 text-amber-500 fill-amber-100" />);
+        break;
+      case 2:
+        iconHtml = renderToString(<BellDot className="h-8 w-8 text-orange-500 fill-orange-100" />);
+        break;
+      case 3:
+        iconHtml = renderToString(<Siren className="h-8 w-8 text-red-600 fill-red-100" />);
+        break;
+      default:
+        iconHtml = renderToString(<AlertTriangle className="h-8 w-8 text-red-500 fill-red-100" />);
+    }
+    
+    return L.divIcon({
+      html: iconHtml,
+      className: 'custom-alert-icon',
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32]
+    });
+  };
 
   return (
     <div className="my-8 w-full h-[400px] mx-auto relative rounded-lg overflow-hidden border border-gray-200">
@@ -109,7 +125,7 @@ export const MapView: React.FC<MapViewProps> = ({ data }) => {
           <Marker 
             key={index} 
             position={[point.lat, point.lng]}
-            icon={customMarkerIcon}
+            icon={createAlertIcon(index)}
           >
             <Popup>
               {point.description || `Issue at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}

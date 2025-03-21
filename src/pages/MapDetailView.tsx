@@ -1,23 +1,11 @@
 
 import React, { useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, AlertTriangle, BellDot, AlertCircle, Siren } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
-// Fix for Leaflet default icon issue
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41]
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
+import { renderToString } from 'react-dom/server';
 
 interface Point {
   lat: number;
@@ -107,13 +95,37 @@ const MapDetailView = () => {
     return 16; // Much closer zoom for very nearby points
   }, [mapPoints]);
 
-  const customMarkerIcon = new L.Icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-  });
+  // Generate different alert icons for variety
+  const createAlertIcon = (index: number) => {
+    // For detailed view, use larger icons
+    const iconType = index % 4;
+    let iconHtml;
+    
+    switch(iconType) {
+      case 0:
+        iconHtml = renderToString(<AlertTriangle className="h-10 w-10 text-red-500 fill-red-100" />);
+        break;
+      case 1:
+        iconHtml = renderToString(<AlertCircle className="h-10 w-10 text-amber-500 fill-amber-100" />);
+        break;
+      case 2:
+        iconHtml = renderToString(<BellDot className="h-10 w-10 text-orange-500 fill-orange-100" />);
+        break;
+      case 3:
+        iconHtml = renderToString(<Siren className="h-10 w-10 text-red-600 fill-red-100" />);
+        break;
+      default:
+        iconHtml = renderToString(<AlertTriangle className="h-10 w-10 text-red-500 fill-red-100" />);
+    }
+    
+    return L.divIcon({
+      html: iconHtml,
+      className: 'custom-alert-icon',
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      popupAnchor: [0, -40]
+    });
+  };
   
   return (
     <div className="min-h-screen bg-fleet-gray p-6">
@@ -148,7 +160,7 @@ const MapDetailView = () => {
                 <Marker 
                   key={index} 
                   position={[point.lat, point.lng]}
-                  icon={customMarkerIcon}
+                  icon={createAlertIcon(index)}
                 >
                   <Popup>
                     {point.description || `Issue at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}
@@ -175,12 +187,41 @@ const MapDetailView = () => {
               <div>
                 <h3 className="text-lg font-medium mb-2">Issue List</h3>
                 <ul className="space-y-2 text-fleet-dark-gray">
-                  {mapPoints.map((point, index) => (
-                    <li key={index} className="flex items-start">
-                      <span className="w-4 h-4 bg-blue-500 rounded-full mt-1 mr-2 flex-shrink-0"></span>
-                      <span>{point.description || `Issue at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}</span>
-                    </li>
-                  ))}
+                  {mapPoints.map((point, index) => {
+                    // Use same alert icon styles for consistency in the list
+                    const iconType = index % 4;
+                    let IconComponent;
+                    let iconColor;
+                    
+                    switch(iconType) {
+                      case 0:
+                        IconComponent = AlertTriangle;
+                        iconColor = "text-red-500";
+                        break;
+                      case 1:
+                        IconComponent = AlertCircle;
+                        iconColor = "text-amber-500";
+                        break;
+                      case 2:
+                        IconComponent = BellDot;
+                        iconColor = "text-orange-500";
+                        break;
+                      case 3:
+                        IconComponent = Siren;
+                        iconColor = "text-red-600";
+                        break;
+                      default:
+                        IconComponent = AlertTriangle;
+                        iconColor = "text-red-500";
+                    }
+                    
+                    return (
+                      <li key={index} className="flex items-start">
+                        <IconComponent className={`w-5 h-5 mt-0.5 mr-2 flex-shrink-0 ${iconColor}`} />
+                        <span>{point.description || `Issue at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </div>

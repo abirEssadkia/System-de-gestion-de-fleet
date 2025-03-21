@@ -1,23 +1,11 @@
 
 import React, { useMemo } from 'react';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
-import { MapPin } from 'lucide-react';
+import { MapPin, AlertTriangle, BellDot, AlertCircle, Siren } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-
-// Fix for Leaflet default icon issue
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41]
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
+import { renderToString } from 'react-dom/server';
 
 interface Point {
   lat: number;
@@ -94,13 +82,37 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, handleC
     return 14;
   }, [points]);
 
-  const customMarkerIcon = new L.Icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-  });
+  // Generate different alert icons for variety
+  const createAlertIcon = (index: number) => {
+    // For dashboard maps, use smaller icons
+    const iconType = index % 4;
+    let iconHtml;
+    
+    switch(iconType) {
+      case 0:
+        iconHtml = renderToString(<AlertTriangle className="h-6 w-6 text-red-500 fill-red-100" />);
+        break;
+      case 1:
+        iconHtml = renderToString(<AlertCircle className="h-6 w-6 text-amber-500 fill-amber-100" />);
+        break;
+      case 2:
+        iconHtml = renderToString(<BellDot className="h-6 w-6 text-orange-500 fill-orange-100" />);
+        break;
+      case 3:
+        iconHtml = renderToString(<Siren className="h-6 w-6 text-red-600 fill-red-100" />);
+        break;
+      default:
+        iconHtml = renderToString(<AlertTriangle className="h-6 w-6 text-red-500 fill-red-100" />);
+    }
+    
+    return L.divIcon({
+      html: iconHtml,
+      className: 'custom-alert-icon',
+      iconSize: [24, 24],
+      iconAnchor: [12, 24],
+      popupAnchor: [0, -24]
+    });
+  };
 
   return (
     <DashboardCard className="col-span-1 min-h-[200px] cursor-pointer hover:shadow-md transition-shadow" onClick={openDetails}>
@@ -123,7 +135,7 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, handleC
             <Marker 
               key={index} 
               position={[point.lat, point.lng]}
-              icon={customMarkerIcon}
+              icon={createAlertIcon(index)}
             >
               <Popup>
                 {point.description || `Issue at ${point.lat.toFixed(4)}, ${point.lng.toFixed(4)}`}
