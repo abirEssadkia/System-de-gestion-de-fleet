@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Filter, Calendar as CalendarIcon, Car, CheckSquare, Gauge, MapPin, BarChart, Download, Columns } from 'lucide-react';
+import { ChevronDown, ChevronUp, Filter, Calendar as CalendarIcon, Car, CheckSquare, Gauge, MapPin, BarChart, Download, Columns, BellDot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Selector } from './Selector';
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
