@@ -15,14 +15,14 @@ export const useDiagramDetails = () => {
     
     let url;
     if (type === 'map') {
-      // Pour les cartes, naviguez vers la vue complète de la carte (correction de l'URL)
+      // For maps, navigate to the full map view page
       url = `/map-detail-view?${params.toString()}`;
     } else {
-      // Pour les graphiques, utilisez la page de détails du diagramme
+      // For charts, use the diagram details page
       url = `/diagram-details?${params.toString()}`;
     }
     
-    // Ouvrir dans un nouvel onglet
+    // Open in a new tab
     window.open(url, '_blank');
     
     toast({

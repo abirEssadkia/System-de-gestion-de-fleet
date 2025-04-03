@@ -9,6 +9,7 @@ import { useMapCoordinates } from './map/MapCoordinates';
 import { useMapPointsFilter } from './map/MapPointsFilter';
 import { AlertCounter } from './map/AlertCounter';
 import { MapMarkers } from './map/MapMarkers';
+import { useDiagramDetails } from '@/hooks/useDiagramDetails';
 
 interface Point {
   lat: number;
@@ -21,14 +22,30 @@ interface MapViewProps {
   data?: Point[];
   type?: 'speed' | 'fuel' | 'activity' | 'geofence' | 'time' | 'all';
   filters?: FilterOptions;
+  showFullMapButton?: boolean;
+  title?: string;
 }
 
-export const MapView: React.FC<MapViewProps> = ({ data, type = 'all', filters }) => {
+export const MapView: React.FC<MapViewProps> = ({ 
+  data, 
+  type = 'all', 
+  filters,
+  showFullMapButton = false,
+  title = 'Alerts Map'
+}) => {
   // Get filtered map points
   const mapPoints = useMapPointsFilter({ data, type, filters, allAlerts });
   
   // Get map coordinates
   const { getMapCenter, getBoundsZoom } = useMapCoordinates(mapPoints);
+  
+  // Get diagram details hook
+  const { handleDiagramClick } = useDiagramDetails();
+  
+  // Handle open in new window
+  const handleOpenFullMap = () => {
+    handleDiagramClick('map', title, mapPoints, `Map of ${mapPoints.length} ${type} alerts`);
+  };
 
   return (
     <div className="my-8 w-full h-[400px] mx-auto relative rounded-lg overflow-hidden border border-gray-200">
@@ -48,7 +65,11 @@ export const MapView: React.FC<MapViewProps> = ({ data, type = 'all', filters })
         <SetBoundsToMarkers points={mapPoints} />
       </MapContainer>
       
-      <AlertCounter count={mapPoints.length} />
+      <AlertCounter 
+        count={mapPoints.length} 
+        showButton={showFullMapButton}
+        onClick={handleOpenFullMap}
+      />
     </div>
   );
 };
