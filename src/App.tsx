@@ -28,6 +28,7 @@ function App() {
             <Route path="/reports" element={<Reports />} />
             <Route path="/diagram-details" element={<DiagramDetails />} />
             <Route path="/alert-management" element={<AlertManagement />} />
+            <Route path="/map-detail" element={<MapDetailView />} />
             <Route path="/map-detail-view" element={<MapDetailView />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

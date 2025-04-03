@@ -15,8 +15,8 @@ export const useDiagramDetails = () => {
     
     let url;
     if (type === 'map') {
-      // For maps, navigate to the full map view page
-      url = `/map-detail-view?${params.toString()}`;
+      // For maps, navigate to the full map view page - fixed URL path
+      url = `/map-detail?${params.toString()}`;
     } else {
       // For charts, use the diagram details page
       url = `/diagram-details?${params.toString()}`;
