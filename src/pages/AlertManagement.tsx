@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, BellRing, AlertTriangle, Clock, CheckCircle, Fuel, Map, Shield, BellDot } from 'lucide-react';
@@ -183,23 +182,6 @@ const AlertManagement = () => {
     }
   };
 
-  // Handle view on map click
-  const handleViewOnMap = (type: AlertType) => {
-    const alertPoints = filteredAlerts
-      .filter(alert => type === 'all' || alert.type === type)
-      .map(alert => ({
-        lat: alert.coordinates?.lat || 0,
-        lng: alert.coordinates?.lng || 0,
-        description: `${alert.title} (${alert.vehicleId}): ${alert.description}`,
-        type: alert.type
-      }));
-    
-    // Encode data for URL
-    const data = encodeURIComponent(JSON.stringify(alertPoints));
-    const title = `${getAlertTypeName(type)} Alerts`;
-    navigate(`/map-detail?title=${encodeURIComponent(title)}&data=${data}&type=${type}`);
-  };
-
   return (
     <div className="min-h-screen bg-fleet-gray">
       <div className="bg-fleet-navy text-white p-4 shadow-sm">
@@ -221,10 +203,8 @@ const AlertManagement = () => {
       </div>
       
       <main className="container mx-auto px-4 py-6">
-        {/* Add FilterPanel */}
         <FilterPanel onFilterChange={handleFilterChange} />
         
-        {/* Map visualization of currently filtered alerts */}
         <div className="bg-white rounded-xl shadow-sm mb-6 p-6">
           <h2 className="text-xl font-bold text-fleet-navy mb-4">Alert Map</h2>
           <MapView 
@@ -245,14 +225,6 @@ const AlertManagement = () => {
             </div>
             
             <div className="mt-4 md:mt-0 space-y-3 md:space-y-0">
-              {/* View on Map Button */}
-              <button
-                onClick={() => handleViewOnMap(typeFilter)}
-                className="px-4 py-2 rounded-md text-sm font-medium transition-colors bg-fleet-navy text-white hover:bg-fleet-blue mr-2"
-              >
-                <Map className="w-4 h-4 inline mr-1" /> View on Map
-              </button>
-              
               {/* Alert Type Filter */}
               <div className="flex space-x-2 mb-3 md:mb-0 md:justify-end">
                 <button 
@@ -399,7 +371,6 @@ const AlertManagement = () => {
                       </div>
                       <p className="text-fleet-dark-gray mb-2">{alert.description}</p>
                       
-                      {/* Additional Alert Details */}
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3 bg-white p-3 rounded border border-gray-200">
                         <div>
                           <div className="text-xs text-gray-500">Vehicle ID</div>
@@ -467,7 +438,6 @@ const AlertManagement = () => {
                     )}
                   </div>
                   
-                  {/* Edit form */}
                   {editingAlert?.id === alert.id && (
                     <div className="mt-4 border-t pt-4">
                       <div className="mb-4">
@@ -545,4 +515,3 @@ const AlertManagement = () => {
 };
 
 export default AlertManagement;
-
