@@ -1,7 +1,13 @@
 
 import React from 'react';
 import { MapPin } from 'lucide-react';
-import { Selector } from '../Selector';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface GeofenceSelectorProps {
   zones: string[];
@@ -21,16 +27,25 @@ export const GeofenceSelector = ({
       <label className="text-sm font-medium text-fleet-dark-gray flex items-center gap-2">
         <MapPin className="w-4 h-4" /> Geofencing Zones
       </label>
-      <Selector 
-        label="Zones" 
-        options={zones}
-        value={selectedZone}
-        onChange={(value) => {
+      <Select 
+        value={selectedZone} 
+        onValueChange={(value) => {
           onChange(value);
-          notifyChange();
+          // We don't need to call notifyChange because onChange already notifies
         }}
-        placeholder="Select zone"
-      />
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select a zone" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">All Locations</SelectItem>
+          {zones.map((zone) => (
+            <SelectItem key={zone} value={zone}>
+              {zone}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 };

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { AlertType } from '@/utils/alertsData';
@@ -47,8 +46,8 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
   const [chartType, setChartType] = useState('line');
   const [alertType, setAlertType] = useState<AlertType | 'all'>('all');
   
-  // Moroccan cities only for geofencing zones:
-  const zones = ['Casablanca', 'Marrakech', 'Fes', 'Nador', 'Agadir', 'Ouarzazate', 'Rabat', 'Tanger'];
+  // Moroccan cities for geofencing zones
+  const zones = ['Rabat', 'Casablanca', 'Marrakech', 'Nador', 'Ouarzazate', 'Fes', 'Agadir', 'Tanger'];
   const vehicles = ['Vehicle 1', 'Vehicle 2', 'Vehicle 3', 'Vehicle 4', 'Vehicle 5', 'FL-7823', 'FL-4567', 'FL-9012', 'FL-6547', 'FL-3210', 'FL-3452', 'FL-8732'];
   const chartTypes = ['Bar', 'Line', 'Pie'];
   const exportOptions = ['CSV', 'Excel', 'PDF'];
@@ -78,7 +77,7 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
     notifyFilterChange(undefined, value);
   };
 
-  // Ensure the zone filter propagates immediately when changed
+  // Handle zone change
   const handleZoneChange = (zone: string) => {
     setSelectedZone(zone);
     // Immediately notify parent of the change
@@ -235,4 +234,3 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
     </div>
   );
 };
-
