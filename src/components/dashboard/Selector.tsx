@@ -32,7 +32,7 @@ export const Selector = ({
         onChange={handleChange}
         aria-label={label}
       >
-        <option value="" disabled>{placeholder}</option>
+        {/* No empty string value. Use first valid option or 'All Locations' as default. */}
         {options.map((option, index) => (
           <option key={index} value={option}>{option}</option>
         ))}
