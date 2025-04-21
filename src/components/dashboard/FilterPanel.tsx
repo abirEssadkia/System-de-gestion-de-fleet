@@ -47,9 +47,9 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
   const [chartType, setChartType] = useState('line');
   const [alertType, setAlertType] = useState<AlertType | 'all'>('all');
   
-  // Sample data
+  // Moroccan cities only for geofencing zones:
+  const zones = ['Casablanca', 'Marrakech', 'Fes', 'Nador', 'Agadir', 'Ouarzazate', 'Rabat', 'Tanger'];
   const vehicles = ['Vehicle 1', 'Vehicle 2', 'Vehicle 3', 'Vehicle 4', 'Vehicle 5', 'FL-7823', 'FL-4567', 'FL-9012', 'FL-6547', 'FL-3210', 'FL-3452', 'FL-8732'];
-  const zones = ['Zone A', 'Zone B', 'Zone C', 'Zone D', 'Rabat', 'Casablanca', 'Marrakech', 'Tangier'];
   const chartTypes = ['Bar', 'Line', 'Pie'];
   const exportOptions = ['CSV', 'Excel', 'PDF'];
   const columnOptions = ['Status', 'Speed', 'Location', 'Driver', 'Time'];
@@ -76,6 +76,24 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
   const handleAlertTypeChange = (value: AlertType | 'all') => {
     setAlertType(value);
     notifyFilterChange(undefined, value);
+  };
+
+  // Ensure the zone filter propagates immediately when changed
+  const handleZoneChange = (zone: string) => {
+    setSelectedZone(zone);
+    // Immediately notify parent of the change
+    if (onFilterChange) {
+      onFilterChange({
+        startDate,
+        endDate,
+        selectedVehicles,
+        statusFilters,
+        speedThreshold,
+        selectedZone: zone,
+        chartType,
+        alertType,
+      });
+    }
   };
 
   const notifyFilterChange = (newStatusFilters?: typeof statusFilters, newAlertType?: AlertType | 'all') => {
@@ -191,7 +209,7 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
               <GeofenceSelector 
                 zones={zones}
                 selectedZone={selectedZone}
-                onChange={setSelectedZone}
+                onChange={handleZoneChange}
                 notifyChange={notifyFilterChange}
               />
             </div>
@@ -217,3 +235,4 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
     </div>
   );
 };
+
