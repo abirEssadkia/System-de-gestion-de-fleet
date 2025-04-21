@@ -22,7 +22,7 @@ export const FleetStatusCard = ({ handleDiagramClick }: FleetStatusCardProps) =>
           <DashboardCardTitle>RTL Fleet Status</DashboardCardTitle>
           <Selector 
             label="Location" 
-            options={['All Locations', 'New York', 'Los Angeles', 'Chicago']} 
+            options={['All Locations', 'Rabat', 'Casablanca', 'Marrakech', 'Nador', 'Ouarzazate', 'Fes', 'Agadir', 'Tanger']} 
           />
         </div>
         

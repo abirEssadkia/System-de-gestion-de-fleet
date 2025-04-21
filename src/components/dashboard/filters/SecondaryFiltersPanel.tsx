@@ -5,13 +5,15 @@ import { AlertTypeFilter } from './AlertTypeFilter';
 import { GeofenceSelector } from './GeofenceSelector';
 import { AlertType } from '@/utils/alertsData';
 
+interface StatusFiltersType {
+  running: boolean;
+  idle: boolean;
+  stopped: boolean;
+}
+
 interface SecondaryFiltersPanelProps {
-  statusFilters: {
-    running: boolean;
-    idle: boolean;
-    stopped: boolean;
-  };
-  handleStatusChange: (status: keyof typeof statusFilters) => void;
+  statusFilters: StatusFiltersType;
+  handleStatusChange: (status: keyof StatusFiltersType) => void;
   alertTypes: Array<{ value: string; label: string }>;
   alertType: AlertType | 'all';
   handleAlertTypeChange: (value: AlertType | 'all') => void;
