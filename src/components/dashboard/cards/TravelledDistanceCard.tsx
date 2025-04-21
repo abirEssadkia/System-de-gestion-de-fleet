@@ -12,6 +12,11 @@ export const TravelledDistanceCard = ({ handleDiagramClick }: TravelledDistanceC
   const distanceData = [1000, 1200, 1100, 1800, 3000, 2700, 4200, 3800, 3200, 4000, 3000, 2500, 3500, 3000];
   const distanceLabels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'];
 
+  // Same options as FleetStatusCard
+  const locationOptions = [
+    'All Locations', 'Rabat', 'Casablanca', 'Marrakech', 'Nador', 'Ouarzazate', 'Fes', 'Agadir', 'Tanger'
+  ];
+
   return (
     <DashboardCard className="col-span-1" delay="300">
       <div className="flex flex-col h-full">
@@ -20,7 +25,7 @@ export const TravelledDistanceCard = ({ handleDiagramClick }: TravelledDistanceC
           <div className="flex space-x-2">
             <Selector 
               label="Location" 
-              options={['All Locations']} 
+              options={locationOptions}
             />
             <Selector 
               label="Vehicles" 
