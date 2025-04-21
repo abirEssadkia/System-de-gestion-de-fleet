@@ -39,7 +39,7 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
     stopped: true,
   });
   const [speedThreshold, setSpeedThreshold] = useState('');
-  const [selectedZone, setSelectedZone] = useState('');
+  const [selectedZone, setSelectedZone] = useState('all_locations');
   const [chartType, setChartType] = useState('line');
   const [alertType, setAlertType] = useState<AlertType | 'all'>('all');
 
@@ -118,7 +118,7 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
       stopped: true,
     });
     setSpeedThreshold('');
-    setSelectedZone('');
+    setSelectedZone('all_locations');
     setChartType('line');
     setAlertType('all');
     if (onFilterChange) {
@@ -132,7 +132,7 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
           stopped: true,
         },
         speedThreshold: '',
-        selectedZone: '',
+        selectedZone: 'all_locations',
         chartType: 'line',
         alertType: 'all',
       });
@@ -190,5 +190,3 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
     </div>
   );
 };
-
-// ... file ends

@@ -38,7 +38,7 @@ export const GeofenceSelector = ({
           <SelectValue placeholder="Select a zone" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">All Locations</SelectItem>
+          <SelectItem value="all_locations">All Locations</SelectItem>
           {zones.map((zone) => (
             <SelectItem key={zone} value={zone}>
               {zone}
