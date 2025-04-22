@@ -3,12 +3,19 @@ import React from 'react';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 import { LineChart } from '@/components/dashboard/LineChart';
 import { Selector } from '@/components/dashboard/Selector';
+import { useQuery } from '@tanstack/react-query';
+import { getVehicles } from '@/services/fleetService';
 
 interface TravelledDistanceCardProps {
   handleDiagramClick: (type: 'donut' | 'line' | 'bar' | 'progress', title: string, data: any, description?: string) => void;
 }
 
 export const TravelledDistanceCard = ({ handleDiagramClick }: TravelledDistanceCardProps) => {
+  const { data: vehicles = [] } = useQuery({
+    queryKey: ['vehicles'],
+    queryFn: getVehicles,
+  });
+
   const distanceData = [1000, 1200, 1100, 1800, 3000, 2700, 4200, 3800, 3200, 4000, 3000, 2500, 3500, 3000];
   const distanceLabels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14'];
 
@@ -16,6 +23,9 @@ export const TravelledDistanceCard = ({ handleDiagramClick }: TravelledDistanceC
   const locationOptions = [
     'All Locations', 'Rabat', 'Casablanca', 'Marrakech', 'Nador', 'Ouarzazate', 'Fes', 'Agadir', 'Tanger'
   ];
+
+  // Transform vehicles into options format
+  const vehicleOptions = ['All Vehicles', ...vehicles.map(v => `${v.model} (${v.licensePlate})`)];
 
   return (
     <DashboardCard className="col-span-1" delay="300">
@@ -29,7 +39,7 @@ export const TravelledDistanceCard = ({ handleDiagramClick }: TravelledDistanceC
             />
             <Selector 
               label="Vehicles" 
-              options={['All Vehicles']} 
+              options={vehicleOptions}
             />
           </div>
         </div>
