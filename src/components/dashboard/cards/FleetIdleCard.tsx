@@ -2,12 +2,22 @@
 import React from 'react';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 import { Selector } from '@/components/dashboard/Selector';
+import { useQuery } from '@tanstack/react-query';
+import { getVehicles } from '@/services/fleetService';
 
 interface FleetIdleCardProps {
   handleDiagramClick: (type: 'donut' | 'line' | 'bar' | 'progress', title: string, data: any, description?: string) => void;
 }
 
 export const FleetIdleCard = ({ handleDiagramClick }: FleetIdleCardProps) => {
+  const { data: vehicles = [] } = useQuery({
+    queryKey: ['vehicles'],
+    queryFn: getVehicles,
+  });
+
+  // Transform vehicles into options format
+  const vehicleOptions = ['All Vehicles', ...vehicles.map(v => `${v.model} (${v.licensePlate})`)];
+
   return (
     <DashboardCard className="col-span-1" delay="400">
       <div className="flex flex-col h-full">
@@ -16,7 +26,7 @@ export const FleetIdleCard = ({ handleDiagramClick }: FleetIdleCardProps) => {
           <div className="flex space-x-2">
             <Selector 
               label="Vehicles" 
-              options={['All Vehicles']} 
+              options={vehicleOptions}
             />
             <Selector 
               label="Period" 
