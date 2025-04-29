@@ -12,6 +12,7 @@ import DiagramDetails from '@/pages/DiagramDetails';
 import AlertManagement from '@/pages/AlertManagement';
 import MapDetailView from '@/pages/MapDetailView';
 import Reports from '@/pages/Reports';
+import Forestation from '@/pages/Forestation';
 
 const queryClient = new QueryClient();
 
@@ -26,6 +27,7 @@ function App() {
             <Route path="/drivers" element={<Drivers />} />
             <Route path="/maintenance" element={<Maintenance />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/forestation" element={<Forestation />} />
             <Route path="/diagram-details" element={<DiagramDetails />} />
             <Route path="/alert-management" element={<AlertManagement />} />
             <Route path="/map-detail" element={<MapDetailView />} />

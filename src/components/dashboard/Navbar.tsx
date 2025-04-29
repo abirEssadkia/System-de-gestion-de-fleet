@@ -11,7 +11,8 @@ import {
   FileText,
   Menu,
   X,
-  Brain
+  Brain,
+  TreePine
 } from 'lucide-react';
 
 interface NavButtonProps {
@@ -115,6 +116,12 @@ export const Navbar = () => {
             icon={<FileText size={20} />}
             label="Reports"
           />
+          <NavButton 
+            onClick={() => navigate('/forestation')}
+            active={isActive('/forestation')}
+            icon={<TreePine size={20} />}
+            label="Forestation"
+          />
         </div>
 
         {isMobile && (
@@ -156,6 +163,12 @@ export const Navbar = () => {
                 active={isActive('/reports')}
                 icon={<FileText size={20} />}
                 label="Reports"
+              />
+              <MobileNavButton 
+                onClick={() => {navigate('/forestation'); setIsMenuOpen(false)}}
+                active={isActive('/forestation')}
+                icon={<TreePine size={20} />}
+                label="Forestation"
               />
             </div>
           </div>
