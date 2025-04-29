@@ -2,20 +2,29 @@
 import React from 'react';
 import { Car } from 'lucide-react';
 import { Selector } from '../Selector';
+import { useQuery } from '@tanstack/react-query';
+import { getVehicles } from '@/services/fleetService';
 
 interface VehicleSelectorProps {
-  vehicles: string[];
   selectedVehicles: string[];
   setSelectedVehicles: (vehicles: string[]) => void;
   notifyChange: () => void;
 }
 
 export const VehicleSelector = ({
-  vehicles,
   selectedVehicles,
   setSelectedVehicles,
   notifyChange
 }: VehicleSelectorProps) => {
+  // Fetch real vehicle data
+  const { data: vehiclesData = [] } = useQuery({
+    queryKey: ['vehicles'],
+    queryFn: getVehicles,
+  });
+  
+  // Transform vehicles into options format
+  const vehicles = vehiclesData.map(v => `${v.model} (${v.licensePlate})`);
+
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium text-fleet-dark-gray flex items-center gap-2">

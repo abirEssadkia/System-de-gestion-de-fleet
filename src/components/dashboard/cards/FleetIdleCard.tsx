@@ -12,6 +12,7 @@ interface FleetIdleCardProps {
 
 export const FleetIdleCard = ({ handleDiagramClick }: FleetIdleCardProps) => {
   const [predictionMode, setPredictionMode] = useState<'actual' | 'ml'>('actual');
+  const [selectedVehicle, setSelectedVehicle] = useState<string>('All Vehicles');
   
   const { data: vehicles = [] } = useQuery({
     queryKey: ['vehicles'],
@@ -34,6 +35,8 @@ export const FleetIdleCard = ({ handleDiagramClick }: FleetIdleCardProps) => {
             <Selector 
               label="Vehicles" 
               options={vehicleOptions}
+              value={selectedVehicle}
+              onChange={(value) => setSelectedVehicle(value)}
             />
             <Selector 
               label="Period" 
