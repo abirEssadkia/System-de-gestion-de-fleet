@@ -10,7 +10,8 @@ import {
   Wrench,
   FileText,
   Menu,
-  X
+  X,
+  Brain
 } from 'lucide-react';
 
 interface NavButtonProps {
@@ -75,8 +76,11 @@ export const Navbar = () => {
     <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center">
-          <button onClick={() => navigate('/')} className="font-bold text-xl text-fleet-navy py-4">
+          <button onClick={() => navigate('/')} className="font-bold text-xl text-fleet-navy py-4 flex items-center">
             Fleet Management
+            <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-md flex items-center">
+              <Brain size={12} className="mr-1" /> AI Powered
+            </span>
           </button>
         </div>
         
