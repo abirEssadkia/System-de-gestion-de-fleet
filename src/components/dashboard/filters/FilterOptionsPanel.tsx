@@ -46,7 +46,6 @@ export const FilterOptionsPanel = ({
       }}
     />
     <VehicleSelector
-      vehicles={vehicles}
       selectedVehicles={selectedVehicles}
       setSelectedVehicles={setSelectedVehicles}
       notifyChange={notifyFilterChange}
