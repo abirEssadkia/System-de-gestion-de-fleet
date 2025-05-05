@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Navbar } from '@/components/dashboard/Navbar';
-import { Brain, TrendingUp, TreePine, AlertTriangle } from 'lucide-react';
+import { Brain, TrendingUp, Gauge } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Selector } from '@/components/dashboard/Selector';
@@ -34,10 +34,10 @@ const Forestation = () => {
     fuelWaste = predictionMode === 'actual' ? 576.8 : 358.4;
   }
   
-  // Calculate environmental impact values
-  const co2Reduction = fuelWaste * 2.3; // kg CO2 per liter of fuel
-  const treesNeeded = Math.round(co2Reduction / 21); // Average tree absorbs 21kg CO2 per year
-  const forestAreaNeeded = Math.round(treesNeeded * 4); // Average 4 square meters per tree
+  // Calculate additional metrics
+  const fuelCost = fuelWaste * 1.8; // Assuming €1.80 per liter
+  const idleCost = idleHours * 25; // Estimated cost of €25 per idle hour (driver wages, wear and tear)
+  const totalCost = fuelCost + idleCost;
   
   return (
     <div className="min-h-screen bg-fleet-gray">
@@ -47,9 +47,9 @@ const Forestation = () => {
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl font-bold text-fleet-navy flex items-center">
-              <TreePine size={24} className="mr-2 text-green-500" /> 
-              Forestation Impact Analysis
-              <span className="ml-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-md flex items-center">
+              <Gauge size={24} className="mr-2 text-blue-500" /> 
+              Fleet Performance Predictions
+              <span className="ml-2 bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-md flex items-center">
                 <Brain size={12} className="mr-1" /> AI Powered
               </span>
             </h1>
@@ -63,7 +63,7 @@ const Forestation = () => {
               />
               <Selector 
                 label="Period" 
-                options={['Last 7 days', 'Last 30 days', 'Last 90 days', 'This year']} 
+                options={['Last 7 days', 'Last 30 days', 'Last 90 days']} 
                 value={selectedPeriod}
                 onChange={(value) => setSelectedPeriod(value)}
               />
@@ -76,10 +76,10 @@ const Forestation = () => {
           </div>
           
           <p className="text-gray-600 mb-6">
-            This tool uses machine learning to analyze your fleet's emissions and calculate the forestation needed to offset your carbon footprint.
+            Advanced analytics that use machine learning to predict fleet performance metrics and identify optimization opportunities.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
             <Card className="p-6">
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
@@ -90,7 +90,7 @@ const Forestation = () => {
                       className="w-10 h-10 mb-1"
                     />
                   ) : (
-                    <Brain className="w-10 h-10 mb-1 text-green-400" />
+                    <Brain className="w-10 h-10 mb-1 text-blue-400" />
                   )}
                 </div>
                 <h3 className="text-lg font-semibold mb-1">
@@ -117,14 +117,14 @@ const Forestation = () => {
                       className="w-10 h-10 mb-1"
                     />
                   ) : (
-                    <Brain className="w-10 h-10 mb-1 text-green-400" />
+                    <Brain className="w-10 h-10 mb-1 text-blue-400" />
                   )}
                 </div>
                 <h3 className="text-lg font-semibold mb-1">
-                  {predictionMode === 'ml' ? 'ML Predicted Fuel Waste' : 'Approx Fuel Waste'}
+                  {predictionMode === 'ml' ? 'ML Predicted Fuel Usage' : 'Fuel Usage'}
                 </h3>
                 <div className="text-3xl font-bold">
-                  {fuelWaste} Liter
+                  {fuelWaste.toFixed(1)} Liters
                 </div>
                 {predictionMode === 'ml' && (
                   <div className="text-sm text-green-400 flex items-center justify-center mt-1">
@@ -137,57 +137,57 @@ const Forestation = () => {
             <Card className="p-6">
               <div className="text-center">
                 <div className="flex items-center justify-center mb-2">
-                  <AlertTriangle className="w-10 h-10 mb-1 text-amber-500" />
+                  <Brain className="w-10 h-10 mb-1 text-blue-400" />
                 </div>
                 <h3 className="text-lg font-semibold mb-1">
-                  CO2 Emissions
+                  Estimated Cost Savings
                 </h3>
                 <div className="text-3xl font-bold">
-                  {co2Reduction.toFixed(1)} kg
+                  €{predictionMode === 'ml' ? Math.round((idleCost * 0.38) + (fuelCost * 0.38)) : 0}
                 </div>
                 <div className="text-sm text-gray-500 mt-1">
-                  Based on fuel consumption
+                  With ML optimization
                 </div>
               </div>
             </Card>
           </div>
 
-          <div className="bg-green-50 rounded-lg p-6 border border-green-200">
-            <h2 className="text-xl font-bold text-green-800 flex items-center mb-4">
-              <TreePine size={20} className="mr-2" /> 
-              Environmental Impact & Forestation Needs
+          <div className="bg-blue-50 rounded-lg p-6 border border-blue-200">
+            <h2 className="text-xl font-bold text-blue-800 flex items-center mb-4">
+              <Gauge size={20} className="mr-2" /> 
+              Performance Insights & Recommendations
             </h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <div className="mb-4">
-                  <p className="text-gray-700 mb-2"><strong>Trees Required to Offset:</strong></p>
-                  <div className="text-4xl font-bold text-green-700">{treesNeeded} trees</div>
-                  <p className="text-sm text-gray-500 mt-1">Based on average CO2 absorption of 21kg per tree per year</p>
+                  <p className="text-gray-700 mb-2"><strong>Idle Time Cost Impact:</strong></p>
+                  <div className="text-4xl font-bold text-blue-700">€{Math.round(idleCost)}</div>
+                  <p className="text-sm text-gray-500 mt-1">Based on estimated cost of €25 per idle hour</p>
                 </div>
                 
                 <div>
-                  <p className="text-gray-700 mb-2"><strong>Forest Area Required:</strong></p>
-                  <div className="text-4xl font-bold text-green-700">{forestAreaNeeded} m²</div>
-                  <p className="text-sm text-gray-500 mt-1">Approximately {(forestAreaNeeded / 10000).toFixed(2)} hectares</p>
+                  <p className="text-gray-700 mb-2"><strong>Fuel Cost Impact:</strong></p>
+                  <div className="text-4xl font-bold text-blue-700">€{Math.round(fuelCost)}</div>
+                  <p className="text-sm text-gray-500 mt-1">Based on current fuel price of €1.80 per liter</p>
                 </div>
               </div>
               
               <div className="flex flex-col justify-between">
                 <div>
                   <p className="text-gray-700 mb-3">
-                    <strong>Recommendations:</strong>
+                    <strong>Fleet Optimization Recommendations:</strong>
                   </p>
                   <ul className="list-disc pl-5 space-y-2 text-gray-600">
-                    <li>Consider implementing idle-reduction strategies</li>
-                    <li>Optimize route planning to reduce unnecessary fuel consumption</li>
-                    <li>Invest in a forestation program to offset emissions</li>
-                    <li>Gradually transition to more fuel-efficient or electric vehicles</li>
+                    <li>Implement idle-reduction strategies to save approximately €{Math.round(idleCost * 0.38)} per {selectedPeriod.toLowerCase()}</li>
+                    <li>Optimize route planning to reduce fuel consumption by up to 38%</li>
+                    <li>Consider driver training programs focused on fuel-efficient driving</li>
+                    <li>Schedule maintenance to improve vehicle efficiency</li>
                   </ul>
                 </div>
                 
-                <Button className="mt-4 bg-green-600 hover:bg-green-700">
-                  <TreePine className="mr-2" /> Generate Detailed Report
+                <Button className="mt-4 bg-blue-600 hover:bg-blue-700">
+                  <Gauge className="mr-2" /> Generate Performance Report
                 </Button>
               </div>
             </div>
