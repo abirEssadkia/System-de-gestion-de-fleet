@@ -12,7 +12,7 @@ import {
   Menu,
   X,
   Brain,
-  TreePine
+  Gauge
 } from 'lucide-react';
 
 interface NavButtonProps {
@@ -119,8 +119,8 @@ export const Navbar = () => {
           <NavButton 
             onClick={() => navigate('/forestation')}
             active={isActive('/forestation')}
-            icon={<TreePine size={20} />}
-            label="Forestation"
+            icon={<Gauge size={20} />}
+            label="Fleet Performance Predictions"
           />
         </div>
 
@@ -167,8 +167,8 @@ export const Navbar = () => {
               <MobileNavButton 
                 onClick={() => {navigate('/forestation'); setIsMenuOpen(false)}}
                 active={isActive('/forestation')}
-                icon={<TreePine size={20} />}
-                label="Forestation"
+                icon={<Gauge size={20} />}
+                label="Fleet Performance Predictions"
               />
             </div>
           </div>
