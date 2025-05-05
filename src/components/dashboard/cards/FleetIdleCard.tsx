@@ -13,18 +13,28 @@ interface FleetIdleCardProps {
 export const FleetIdleCard = ({ handleDiagramClick }: FleetIdleCardProps) => {
   const [predictionMode, setPredictionMode] = useState<'actual' | 'ml'>('actual');
   const [selectedVehicle, setSelectedVehicle] = useState<string>('All Vehicles');
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('Last 7 days');
   
-  const { data: vehicles = [] } = useQuery({
+  const { data: vehiclesData = [] } = useQuery({
     queryKey: ['vehicles'],
     queryFn: getVehicles,
   });
 
   // Transform vehicles into options format
-  const vehicleOptions = ['All Vehicles', ...vehicles.map(v => `${v.model} (${v.licensePlate})`)];
+  const vehicleOptions = ['All Vehicles', ...vehiclesData.map(v => `${v.model} (${v.licensePlate})`)];
 
-  // Values based on prediction mode
-  const idleHours = predictionMode === 'actual' ? 68 : 42;
-  const fuelWaste = predictionMode === 'actual' ? 47.6 : 29.4;
+  // Values based on prediction mode and period
+  let idleHours = predictionMode === 'actual' ? 68 : 42;
+  let fuelWaste = predictionMode === 'actual' ? 47.6 : 29.4;
+  
+  // Adjust values based on selected period
+  if (selectedPeriod === 'Last 30 days') {
+    idleHours = predictionMode === 'actual' ? 289 : 178;
+    fuelWaste = predictionMode === 'actual' ? 196.2 : 124.5;
+  } else if (selectedPeriod === 'Last 90 days') {
+    idleHours = predictionMode === 'actual' ? 824 : 512;
+    fuelWaste = predictionMode === 'actual' ? 576.8 : 358.4;
+  }
 
   return (
     <DashboardCard className="col-span-1" delay="400">
@@ -40,7 +50,9 @@ export const FleetIdleCard = ({ handleDiagramClick }: FleetIdleCardProps) => {
             />
             <Selector 
               label="Period" 
-              options={['Last 7 days']} 
+              options={['Last 7 days', 'Last 30 days', 'Last 90 days']} 
+              value={selectedPeriod}
+              onChange={(value) => setSelectedPeriod(value)}
             />
             <Selector
               label="Predictions"

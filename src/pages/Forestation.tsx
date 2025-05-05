@@ -13,17 +13,26 @@ const Forestation = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('Last 7 days');
   const [selectedVehicle, setSelectedVehicle] = useState('All Vehicles');
   
-  const { data: vehicles = [] } = useQuery({
+  const { data: vehiclesData = [] } = useQuery({
     queryKey: ['vehicles'],
     queryFn: getVehicles,
   });
   
   // Transform vehicles into options format
-  const vehicleOptions = ['All Vehicles', ...vehicles.map(v => `${v.model} (${v.licensePlate})`)];
+  const vehicleOptions = ['All Vehicles', ...vehiclesData.map(v => `${v.model} (${v.licensePlate})`)];
 
-  // Values based on prediction mode
-  const idleHours = predictionMode === 'actual' ? 68 : 42;
-  const fuelWaste = predictionMode === 'actual' ? 47.6 : 29.4;
+  // Values based on prediction mode and period
+  let idleHours = predictionMode === 'actual' ? 68 : 42;
+  let fuelWaste = predictionMode === 'actual' ? 47.6 : 29.4;
+  
+  // Adjust values based on selected period
+  if (selectedPeriod === 'Last 30 days') {
+    idleHours = predictionMode === 'actual' ? 289 : 178;
+    fuelWaste = predictionMode === 'actual' ? 196.2 : 124.5;
+  } else if (selectedPeriod === 'Last 90 days') {
+    idleHours = predictionMode === 'actual' ? 824 : 512;
+    fuelWaste = predictionMode === 'actual' ? 576.8 : 358.4;
+  }
   
   // Calculate environmental impact values
   const co2Reduction = fuelWaste * 2.3; // kg CO2 per liter of fuel
@@ -49,11 +58,13 @@ const Forestation = () => {
               <Selector 
                 label="Vehicles" 
                 options={vehicleOptions}
+                value={selectedVehicle}
                 onChange={(value) => setSelectedVehicle(value)}
               />
               <Selector 
                 label="Period" 
                 options={['Last 7 days', 'Last 30 days', 'Last 90 days', 'This year']} 
+                value={selectedPeriod}
                 onChange={(value) => setSelectedPeriod(value)}
               />
               <Selector
