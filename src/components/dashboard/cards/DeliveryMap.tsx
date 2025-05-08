@@ -1,4 +1,3 @@
-
 import React, { useMemo } from 'react';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 import { MapPin, AlertTriangle, BellDot, AlertCircle, Siren, Fuel, Clock, Map } from 'lucide-react';
@@ -7,6 +6,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { renderToString } from 'react-dom/server';
 import { getAlertPointsByType } from '@/utils/alertsData';
+import { useQuery } from '@tanstack/react-query';
+import { getLocations, getFallbackLocations, Location } from '@/services/locationService';
 
 interface Point {
   lat: number;
@@ -45,16 +46,140 @@ const SetBoundsToMarkers = ({ points }: { points: Point[] }) => {
   return null;
 };
 
-export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, type = 'all', handleClick }) => {
+// Sample locations data for the delivery maps in Morocco
+const locationCoordinates: Record<string, { lat: number, lng: number, points: Point[] }> = {
+  'Casablanca': {
+    lat: 33.5731, 
+    lng: -7.5898,
+    points: [
+      {lat: 33.5731, lng: -7.5898, description: "Delivery failed at Maârif"},
+      {lat: 33.5950, lng: -7.6190, description: "Package return at Sidi Belyout"}
+    ]
+  },
+  'Marrakech': {
+    lat: 31.6295, 
+    lng: -7.9811,
+    points: [
+      {lat: 31.6295, lng: -7.9811, description: "Delayed pickup at Medina"},
+      {lat: 31.6425, lng: -8.0022, description: "Missed delivery at Hivernage"},
+      {lat: 31.6140, lng: -8.0352, description: "Late delivery at Palmeraie"}
+    ]
+  },
+  'Fes': {
+    lat: 34.0181, 
+    lng: -5.0078,
+    points: [
+      {lat: 34.0181, lng: -5.0078, description: "Delivery issue at Rcif"},
+      {lat: 34.0330, lng: -4.9830, description: "Package return at Bab Jdid"}
+    ]
+  },
+  'Nador': {
+    lat: 35.1740, 
+    lng: -2.9287,
+    points: [
+      {lat: 35.1740, lng: -2.9287, description: "Failed pickup at City Center"},
+      {lat: 35.1680, lng: -2.9380, description: "Delivery exception at Boulevard Hassan II"},
+      {lat: 35.1611, lng: -2.9500, description: "Delayed delivery at Corniche"}
+    ]
+  },
+  'Agadir': {
+    lat: 30.4278, 
+    lng: -9.5981,
+    points: [
+      {lat: 30.4278, lng: -9.5981, description: "Late delivery at Marina"},
+      {lat: 30.4060, lng: -9.5900, description: "Missed pickup at Founty"}
+    ]
+  },
+  'Ouarzazate': {
+    lat: 30.9335,
+    lng: -6.9370,
+    points: [
+      {lat: 30.9335, lng: -6.9370, description: "Package return at City Center"},
+      {lat: 30.9200, lng: -6.9100, description: "Pickup issue at Atlas Studios"},
+      {lat: 30.9150, lng: -6.8930, description: "Delivery problem at Tabounte"}
+    ]
+  },
+  'Rabat': {
+    lat: 34.0209, 
+    lng: -6.8416,
+    points: [
+      {lat: 34.0209, lng: -6.8416, description: "Delayed delivery at Hassan"},
+      {lat: 34.0100, lng: -6.8300, description: "Package return at Agdal"}
+    ]
+  },
+  'Tanger': {
+    lat: 35.7812, 
+    lng: -5.8137,
+    points: [
+      {lat: 35.7812, lng: -5.8137, description: "Failed delivery at Marina Bay"},
+      {lat: 35.7690, lng: -5.8330, description: "Missed pickup at Old Medina"},
+      {lat: 35.7590, lng: -5.8033, description: "Delivery issue at Malabata"}
+    ]
+  }
+};
+
+// Helper function to get points for a location, considering API city name vs our data
+const getPointsForLocation = (locationName: string): Point[] => {
+  // Clean up location name (remove 'Parc_' if it exists)
+  const cleanName = locationName.replace('Parc_', '');
+  
+  // Direct match
+  if (locationCoordinates[cleanName]) {
+    return locationCoordinates[cleanName].points;
+  }
+  
+  // Handle special case for Casa -> Casablanca
+  if (cleanName === 'Casa') {
+    return locationCoordinates['Casablanca'].points;
+  }
+  
+  // Return empty array if no match
+  return [];
+};
+
+export const DeliveryMap: React.FC<DeliveryMapProps> = ({ 
+  title, 
+  points, 
+  type = 'all', 
+  handleClick 
+}) => {
+  // Fetch locations from API
+  const { data: locations, isLoading, error } = useQuery({
+    queryKey: ['locations'],
+    queryFn: getLocations,
+    // Use fallback data if API fails
+    onError: (err) => {
+      console.error('Error fetching locations:', err);
+      return getFallbackLocations();
+    }
+  });
+
   // Use the alerts data if no points are provided
   const mapPoints = useMemo(() => {
     if (points && points.length > 0) return points;
+    
+    // If we have a title that matches a location, use those points
+    if (title && locationCoordinates[title]) {
+      return locationCoordinates[title].points;
+    }
+    
+    // Otherwise fall back to alert points by type
     return getAlertPointsByType(type);
-  }, [points, type]);
+  }, [points, title, type]);
+
+  // Check if this location exists in our fetched locations
+  const locationExists = useMemo(() => {
+    if (!locations) return true; // Default to true while loading
+    return locations.some(loc => 
+      loc.name === title || 
+      loc.originalName === title || 
+      loc.name === title.replace('Parc_', '')
+    );
+  }, [locations, title]);
 
   const openDetails = () => {
     if (handleClick) {
-      handleClick('map', title, mapPoints, `${title} in ${title}`);
+      handleClick('map', title, mapPoints, `${title} delivery issues`);
     }
   };
 
@@ -134,8 +259,33 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, points, type = 
     });
   };
 
+  if (isLoading) {
+    return (
+      <DashboardCard className="col-span-1 min-h-[200px]">
+        <DashboardCardTitle>{title || 'Loading...'}</DashboardCardTitle>
+        <div className="flex justify-center items-center h-[150px]">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fleet-navy"></div>
+        </div>
+      </DashboardCard>
+    );
+  }
+
+  if (error || !locationExists) {
+    return (
+      <DashboardCard className="col-span-1 min-h-[200px]">
+        <DashboardCardTitle>{title || 'Error'}</DashboardCardTitle>
+        <div className="flex justify-center items-center h-[150px] text-center text-gray-500">
+          <p>Location data unavailable</p>
+        </div>
+      </DashboardCard>
+    );
+  }
+
   return (
-    <DashboardCard className="col-span-1 min-h-[200px] cursor-pointer hover:shadow-md transition-shadow" onClick={openDetails}>
+    <DashboardCard 
+      className="col-span-1 min-h-[200px] cursor-pointer hover:shadow-md transition-shadow" 
+      onClick={openDetails}
+    >
       <DashboardCardTitle>{title}</DashboardCardTitle>
       
       <div className="relative h-[150px] rounded-lg mt-2 overflow-hidden">
