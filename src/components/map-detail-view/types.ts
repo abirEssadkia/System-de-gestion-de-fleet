@@ -7,6 +7,8 @@ export interface Point {
 }
 
 export interface FilterOptions {
+  startDate?: Date;
+  endDate?: Date;
   selectedVehicles: string[];
   statusFilters: {
     running: boolean;

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Navbar } from '@/components/dashboard/Navbar';
 import { FilterPanel } from '@/components/dashboard/FilterPanel';
@@ -27,11 +26,8 @@ const Dashboard = () => {
   const { data: locations, isLoading, error } = useQuery({
     queryKey: ['locations'],
     queryFn: getLocations,
-    onSuccess: (data) => {
-      console.log('Locations loaded:', data.length);
-    },
-    onError: () => {
-      console.error('Error fetching locations, using fallback data');
+    onError: (error) => {
+      console.error('Error fetching locations, using fallback data', error);
       return getFallbackLocations();
     }
   });

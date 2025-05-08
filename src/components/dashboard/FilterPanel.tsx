@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { AlertType } from '@/utils/alertsData';
@@ -20,7 +19,7 @@ export interface FilterOptions {
   speedThreshold: string;
   selectedZone: string;
   chartType: string;
-  alertType?: AlertType | 'all';
+  alertType: AlertType | 'all';
 }
 
 interface FilterPanelProps {
