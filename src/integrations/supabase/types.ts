@@ -9,7 +9,78 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      distance_travelled: {
+        Row: {
+          created_at: string | null
+          date: string
+          distance: number
+          hour: number
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          distance: number
+          hour: number
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          distance?: number
+          hour?: number
+          id?: string
+        }
+        Relationships: []
+      }
+      fleet_status: {
+        Row: {
+          color: string
+          count: number
+          created_at: string | null
+          id: string
+          percentage: number
+          status: string
+        }
+        Insert: {
+          color: string
+          count: number
+          created_at?: string | null
+          id?: string
+          percentage: number
+          status: string
+        }
+        Update: {
+          color?: string
+          count?: number
+          created_at?: string | null
+          id?: string
+          percentage?: number
+          status?: string
+        }
+        Relationships: []
+      }
+      fleet_utilization: {
+        Row: {
+          created_at: string | null
+          date: string
+          id: string
+          percentage: number
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          id?: string
+          percentage: number
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          id?: string
+          percentage?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

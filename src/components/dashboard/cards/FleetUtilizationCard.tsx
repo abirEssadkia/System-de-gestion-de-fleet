@@ -1,8 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 import { CircularProgress } from '@/components/dashboard/CircularProgress';
 import { Selector } from '@/components/dashboard/Selector';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,9 +21,64 @@ interface FleetUtilizationCardProps {
 export const FleetUtilizationCard = ({ handleDiagramClick }: FleetUtilizationCardProps) => {
   const [predictionMode, setPredictionMode] = useState<'actual' | 'ml'>('actual');
   const [selectedPeriod, setSelectedPeriod] = useState('Last 7 days');
+  const [utilizationValue, setUtilizationValue] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
   
-  // Different utilization values based on prediction mode
-  const utilizationValue = predictionMode === 'actual' ? 80 : 92;
+  useEffect(() => {
+    const fetchUtilizationData = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('fleet_utilization')
+          .select('percentage')
+          .order('date', { ascending: false })
+          .limit(1);
+          
+        if (error) {
+          throw error;
+        }
+        
+        if (data && data.length > 0) {
+          // Valeur réelle de la base de données
+          const actualValue = data[0].percentage;
+          
+          // Si on est en mode ML, ajouter un bonus pour simuler l'amélioration
+          if (predictionMode === 'ml') {
+            setUtilizationValue(Math.min(actualValue + 12, 100)); // Max 100%
+          } else {
+            setUtilizationValue(actualValue);
+          }
+        }
+      } catch (error) {
+        console.error('Erreur lors du chargement des données d\'utilisation:', error);
+        toast({
+          title: "Erreur de chargement",
+          description: "Impossible de charger les données d'utilisation de la flotte",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUtilizationData();
+    
+    // Abonnement aux changements en temps réel
+    const channel = supabase
+      .channel('public:fleet_utilization')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'fleet_utilization' }, 
+        (payload) => {
+          fetchUtilizationData();
+        }
+      )
+      .subscribe();
+      
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [predictionMode, selectedPeriod, toast]);
   
   return (
     <DashboardCard className="col-span-1" delay="200">
@@ -67,14 +124,18 @@ export const FleetUtilizationCard = ({ handleDiagramClick }: FleetUtilizationCar
               ? 'ML prediction of fleet utilization shows potential improvement with optimized scheduling and route planning.'
               : 'This metric represents how effectively your fleet is being utilized. A higher percentage indicates better resource management.')}
         >
-          <CircularProgress value={utilizationValue} size={150} color={predictionMode === 'ml' ? "#9b87f5" : "#2A6ED2"}>
-            <div className="text-center">
-              <div className="text-4xl font-bold">{utilizationValue}%</div>
-              {predictionMode === 'ml' && (
-                <div className="text-xs text-green-500 mt-1">+12% improvement</div>
-              )}
-            </div>
-          </CircularProgress>
+          {loading ? (
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+          ) : (
+            <CircularProgress value={utilizationValue} size={150} color={predictionMode === 'ml' ? "#9b87f5" : "#2A6ED2"}>
+              <div className="text-center">
+                <div className="text-4xl font-bold">{utilizationValue}%</div>
+                {predictionMode === 'ml' && (
+                  <div className="text-xs text-green-500 mt-1">+12% improvement</div>
+                )}
+              </div>
+            </CircularProgress>
+          )}
         </div>
       </div>
     </DashboardCard>
