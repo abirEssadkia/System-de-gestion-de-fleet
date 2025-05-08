@@ -15,10 +15,14 @@ interface FleetStatus {
   id: string;
 }
 
-interface DonutChartItemProps {
+export interface DonutChartItemProps {
   label: string;
   value: number;
   color: string;
+}
+
+interface DonutChartProps {
+  data: DonutChartItemProps[];
 }
 
 export const FleetStatusCard = ({ handleDiagramClick }: { handleDiagramClick?: (type: string, title: string, data: any, description?: string) => void }) => {

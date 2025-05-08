@@ -147,9 +147,11 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({
   const { data: locations, isLoading, error } = useQuery({
     queryKey: ['locations'],
     queryFn: getLocations,
-    // Use fallback data if API fails
-    onError: (err) => {
-      console.error('Error fetching locations:', err);
+    onSuccess: (data) => {
+      console.log('Locations loaded in DeliveryMap');
+    },
+    onError: () => {
+      console.error('Error fetching locations in DeliveryMap');
       return getFallbackLocations();
     }
   });

@@ -20,7 +20,7 @@ export const getLocations = async (): Promise<Location[]> => {
     return data.locations || [];
   } catch (error) {
     console.error('Failed to fetch locations:', error);
-    return [];
+    throw error; // Throw instead of returning empty array to trigger onError
   }
 };
 

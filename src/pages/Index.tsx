@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getLocations, getFallbackLocations } from '@/services/locationService';
+import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 
 const Dashboard = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -26,9 +27,11 @@ const Dashboard = () => {
   const { data: locations, isLoading, error } = useQuery({
     queryKey: ['locations'],
     queryFn: getLocations,
-    // Fall back to hardcoded locations if API fails
-    onError: (err) => {
-      console.error('Error fetching locations:', err);
+    onSuccess: (data) => {
+      console.log('Locations loaded:', data.length);
+    },
+    onError: () => {
+      console.error('Error fetching locations, using fallback data');
       return getFallbackLocations();
     }
   });
@@ -36,6 +39,9 @@ const Dashboard = () => {
   useEffect(() => {
     setIsLoaded(true);
   }, []);
+
+  // Fallback to hardcoded locations if the API fails
+  const displayLocations = locations || getFallbackLocations();
 
   return (
     <div className="min-h-screen bg-fleet-gray">
