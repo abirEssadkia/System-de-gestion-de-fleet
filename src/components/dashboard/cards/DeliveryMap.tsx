@@ -1,10 +1,12 @@
 
 import React from 'react';
+import { MapContainer, TileLayer } from 'react-leaflet';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 import { useMapPoints } from '@/hooks/useMapPoints';
 import { MapMarkers } from '@/components/dashboard/cards/utils/MapMarkers';
 import { LoadingState } from '@/components/dashboard/cards/utils/LoadingState';
 import { ErrorState } from '@/components/dashboard/cards/utils/ErrorState';
+import 'leaflet/dist/leaflet.css';
 
 interface DeliveryMapProps {
   title: string;
@@ -28,6 +30,11 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, handleClick }) 
     return <ErrorState title={title} />;
   }
   
+  // Calculate map center based on the first point
+  const center: [number, number] = mapPoints.length > 0 
+    ? [mapPoints[0].lat, mapPoints[0].lng] 
+    : [31.7917, -7.0926]; // Default center (Morocco)
+  
   return (
     <DashboardCard className="col-span-1 min-h-[200px]">
       <DashboardCardTitle>{title}</DashboardCardTitle>
@@ -35,9 +42,20 @@ export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, handleClick }) 
         className="relative h-[150px] rounded-md overflow-hidden cursor-pointer"
         onClick={handleMapClick}
       >
-        <div className="absolute inset-0 bg-gray-100">
+        <MapContainer 
+          center={center}
+          zoom={12} 
+          style={{ height: '100%', width: '100%' }}
+          scrollWheelZoom={false}
+          zoomControl={false}
+          attributionControl={false}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
           <MapMarkers points={mapPoints} />
-        </div>
+        </MapContainer>
       </div>
     </DashboardCard>
   );

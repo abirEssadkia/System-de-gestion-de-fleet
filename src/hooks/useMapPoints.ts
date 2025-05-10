@@ -19,15 +19,7 @@ export const useMapPoints = (locationName: string) => {
           throw new Error(`No coordinates found for ${locationName}`);
         }
         
-        // Transform coordinates to map points
-        const points: Point[] = coordinates.map(coord => ({
-          lat: coord.lat,
-          lng: coord.lng,
-          description: coord.label || '',
-          type: coord.type as 'speed' | 'fuel' | 'activity' | 'geofence' | 'time'
-        }));
-        
-        setMapPoints(points);
+        setMapPoints(coordinates);
         setError(null);
       } catch (err) {
         console.error(`Error loading map points for ${locationName}:`, err);
