@@ -1,6 +1,4 @@
 
-import { supabase } from '@/integrations/supabase/client';
-
 export interface Location {
   id: number;
   name: string;
@@ -9,22 +7,11 @@ export interface Location {
 }
 
 export const getLocations = async (): Promise<Location[]> => {
-  try {
-    const { data, error } = await supabase.functions.invoke('get-locations');
-    
-    if (error) {
-      console.error('Error fetching locations:', error);
-      throw error;
-    }
-    
-    return data.locations || [];
-  } catch (error) {
-    console.error('Failed to fetch locations:', error);
-    throw error; // Throw instead of returning empty array to trigger onError
-  }
+  // Return mock data directly instead of calling Supabase function
+  return getFallbackLocations();
 };
 
-// Hardcoded fallback data in case the API is down
+// Mock data in case the API is down
 export const getFallbackLocations = (): Location[] => {
   return [
     { id: 23391, name: 'Casablanca', originalName: 'Parc_Casa', groupId: 0 },

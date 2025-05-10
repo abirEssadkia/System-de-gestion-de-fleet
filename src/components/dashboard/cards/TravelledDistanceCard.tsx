@@ -5,7 +5,6 @@ import { LineChart } from '@/components/dashboard/LineChart';
 import { Selector } from '@/components/dashboard/Selector';
 import { useQuery } from '@tanstack/react-query';
 import { getVehicles } from '@/services/fleetService';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface TravelledDistanceCardProps {
@@ -35,26 +34,35 @@ export const TravelledDistanceCard = ({ handleDiagramClick }: TravelledDistanceC
   const avgDistancePerVehicle = vehicles.length ? Math.round(totalDistance / vehicles.length) : 0;
 
   useEffect(() => {
-    const fetchDistanceData = async () => {
+    const generateMockDistanceData = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
-          .from('distance_travelled')
-          .select('*')
-          .order('hour', { ascending: true });
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        // Generate mock travel distance data for 24 hours
+        const mockData: DistanceData[] = [];
+        const today = new Date().toISOString().split('T')[0];
+        
+        for (let hour = 0; hour < 24; hour++) {
+          // Create some random but somewhat realistic distance data
+          const baseDistance = Math.floor(Math.random() * 30) + 20; // 20-50 km
+          const variance = Math.floor(Math.random() * 20) - 10; // -10 to +10 km
           
-        if (error) {
-          throw error;
+          mockData.push({
+            id: `dist-${hour}`,
+            hour,
+            distance: baseDistance + variance,
+            date: today
+          });
         }
         
-        if (data) {
-          setDistanceData(data);
-        }
+        setDistanceData(mockData);
       } catch (error) {
-        console.error('Erreur lors du chargement des données de distance parcourue:', error);
+        console.error('Error while loading travel distance data:', error);
         toast({
-          title: "Erreur de chargement",
-          description: "Impossible de charger les données de distance parcourue",
+          title: "Error loading data",
+          description: "Unable to load travel distance data",
           variant: "destructive"
         });
       } finally {
@@ -62,23 +70,8 @@ export const TravelledDistanceCard = ({ handleDiagramClick }: TravelledDistanceC
       }
     };
     
-    fetchDistanceData();
-    
-    // Abonnement aux changements en temps réel
-    const channel = supabase
-      .channel('public:distance_travelled')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'distance_travelled' }, 
-        (payload) => {
-          fetchDistanceData();
-        }
-      )
-      .subscribe();
-      
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [toast]);
+    generateMockDistanceData();
+  }, [toast, selectedLocation, selectedVehicle]);
 
   // Options de localisation
   const locationOptions = [

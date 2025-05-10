@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 import { CircularProgress } from '@/components/dashboard/CircularProgress';
 import { Selector } from '@/components/dashboard/Selector';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
   DropdownMenu,
@@ -26,35 +25,27 @@ export const FleetUtilizationCard = ({ handleDiagramClick }: FleetUtilizationCar
   const { toast } = useToast();
   
   useEffect(() => {
+    // Simulate API call to get utilization data
     const fetchUtilizationData = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
-          .from('fleet_utilization')
-          .select('percentage')
-          .order('date', { ascending: false })
-          .limit(1);
-          
-        if (error) {
-          throw error;
-        }
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 500));
         
-        if (data && data.length > 0) {
-          // Valeur réelle de la base de données
-          const actualValue = data[0].percentage;
-          
-          // Si on est en mode ML, ajouter un bonus pour simuler l'amélioration
-          if (predictionMode === 'ml') {
-            setUtilizationValue(Math.min(actualValue + 12, 100)); // Max 100%
-          } else {
-            setUtilizationValue(actualValue);
-          }
+        // Mock data instead of Supabase
+        const actualValue = 68; // Mock database value
+        
+        // If we're in ML mode, add a bonus for simulation
+        if (predictionMode === 'ml') {
+          setUtilizationValue(Math.min(actualValue + 12, 100)); // Max 100%
+        } else {
+          setUtilizationValue(actualValue);
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des données d\'utilisation:', error);
+        console.error('Error while loading utilization data:', error);
         toast({
-          title: "Erreur de chargement",
-          description: "Impossible de charger les données d'utilisation de la flotte",
+          title: "Error loading data",
+          description: "Unable to load fleet utilization data",
           variant: "destructive"
         });
       } finally {
@@ -63,21 +54,6 @@ export const FleetUtilizationCard = ({ handleDiagramClick }: FleetUtilizationCar
     };
     
     fetchUtilizationData();
-    
-    // Abonnement aux changements en temps réel
-    const channel = supabase
-      .channel('public:fleet_utilization')
-      .on('postgres_changes', 
-        { event: '*', schema: 'public', table: 'fleet_utilization' }, 
-        (payload) => {
-          fetchUtilizationData();
-        }
-      )
-      .subscribe();
-      
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, [predictionMode, selectedPeriod, toast]);
   
   return (

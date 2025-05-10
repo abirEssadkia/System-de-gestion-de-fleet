@@ -23,23 +23,17 @@ const Dashboard = () => {
   const { handleDiagramClick } = useDiagramDetails();
   const navigate = useNavigate();
 
-  // Fetch locations from the API
+  // Fetch locations using our mock data service
   const { data: locations, isLoading, error } = useQuery({
     queryKey: ['locations'],
-    queryFn: getLocations,
-    meta: {
-      onError: (error: Error) => {
-        console.error('Error fetching locations, using fallback data', error);
-        return getFallbackLocations();
-      }
-    }
+    queryFn: getLocations
   });
 
   useEffect(() => {
     setIsLoaded(true);
   }, []);
 
-  // Fallback to hardcoded locations if the API fails
+  // Fallback to hardcoded locations if there's an error
   const displayLocations = locations || getFallbackLocations();
 
   return (

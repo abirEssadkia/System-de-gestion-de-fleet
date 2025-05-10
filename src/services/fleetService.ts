@@ -1,7 +1,6 @@
 
 import { Vehicle, Driver } from '@/types/fleet';
 import { toast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 // Mock data for vehicles
 const mockVehicles: Vehicle[] = [
@@ -239,39 +238,13 @@ export interface FleetStatusData {
   noData?: number;
 }
 
-// Add fleet status function
+// Add fleet status function - mock data instead of Supabase
 export const getFleetStatus = async (): Promise<FleetStatusData> => {
-  try {
-    const { data, error } = await supabase
-      .from('fleet_status')
-      .select('*');
-      
-    if (error) {
-      console.error('Error fetching fleet status:', error);
-      throw error;
-    }
-    
-    // Transform DB data to the expected format
-    const statusMap: Record<string, number> = {};
-    
-    data.forEach((item) => {
-      statusMap[item.status.toLowerCase()] = item.count;
-    });
-    
-    return {
-      running: statusMap.running || 80,
-      idle: statusMap.idle || 13,
-      stopped: statusMap.stopped || 5,
-      noData: statusMap.nodata || 2
-    };
-  } catch (error) {
-    console.error('Failed to fetch fleet status:', error);
-    // Return fallback data
-    return {
-      running: 80,
-      idle: 13,
-      stopped: 5,
-      noData: 2
-    };
-  }
+  // Return mock data directly
+  return {
+    running: 80,
+    idle: 13,
+    stopped: 5,
+    noData: 2
+  };
 };

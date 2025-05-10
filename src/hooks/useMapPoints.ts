@@ -12,7 +12,10 @@ export const useMapPoints = (locationName: string) => {
     const fetchMapPoints = async () => {
       try {
         setIsLoading(true);
-        // Get coordinates based on location name
+        // Simulate API delay
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        // Get coordinates based on location name using local function
         const coordinates = getCoordinatesForLocation(locationName);
         
         if (!coordinates || coordinates.length === 0) {

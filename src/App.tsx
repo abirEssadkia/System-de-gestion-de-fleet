@@ -14,6 +14,7 @@ import MapDetailView from '@/pages/MapDetailView';
 import Reports from '@/pages/Reports';
 import Forestation from '@/pages/Forestation';
 
+// Create a new QueryClient instance
 const queryClient = new QueryClient();
 
 function App() {
