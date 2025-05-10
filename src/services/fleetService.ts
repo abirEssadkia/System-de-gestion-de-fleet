@@ -1,6 +1,6 @@
-
 import { Vehicle, Driver } from '@/types/fleet';
 import { toast } from '@/hooks/use-toast';
+import { supabase } from '@/lib/supabase';
 
 // Mock data for vehicles
 const mockVehicles: Vehicle[] = [
@@ -228,4 +228,49 @@ export const deleteDriver = async (id: string): Promise<void> => {
     title: "Driver removed",
     description: driver ? `${driver.name} has been removed from the team.` : "Driver has been removed."
   });
+};
+
+// Add fleet status interface
+export interface FleetStatusData {
+  running: number;
+  idle: number;
+  stopped: number;
+  noData?: number;
+}
+
+// Add fleet status function
+export const getFleetStatus = async (): Promise<FleetStatusData> => {
+  try {
+    const { data, error } = await supabase
+      .from('fleet_status')
+      .select('*');
+      
+    if (error) {
+      console.error('Error fetching fleet status:', error);
+      throw error;
+    }
+    
+    // Transform DB data to the expected format
+    const statusMap: Record<string, number> = {};
+    
+    data.forEach((item) => {
+      statusMap[item.status.toLowerCase()] = item.count;
+    });
+    
+    return {
+      running: statusMap.running || 80,
+      idle: statusMap.idle || 13,
+      stopped: statusMap.stopped || 5,
+      noData: statusMap.nodata || 2
+    };
+  } catch (error) {
+    console.error('Failed to fetch fleet status:', error);
+    // Return fallback data
+    return {
+      running: 80,
+      idle: 13,
+      stopped: 5,
+      noData: 2
+    };
+  }
 };

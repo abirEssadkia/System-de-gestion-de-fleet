@@ -6,7 +6,7 @@ import { DonutChart } from '@/components/dashboard/DonutChart';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
-import { getFleetStatus } from '@/services/fleetService';
+import { getFleetStatus, FleetStatusData } from '@/services/fleetService';
 import { cn } from '@/lib/utils';
 
 interface DonutChartItemProps {
@@ -36,11 +36,17 @@ export const FleetStatusCard = ({ handleDiagramClick }: FleetStatusCardProps) =>
       ];
     }
     
-    return [
+    const data: DonutChartItemProps[] = [
       { name: 'Running', value: fleetStatus.running, color: '#10B981' },
       { name: 'Idle', value: fleetStatus.idle, color: '#F59E0B' },
       { name: 'Stopped', value: fleetStatus.stopped, color: '#6B7280' }
     ];
+    
+    if (fleetStatus.noData && fleetStatus.noData > 0) {
+      data.push({ name: 'No data', value: fleetStatus.noData, color: '#374151' });
+    }
+    
+    return data;
   }, [fleetStatus]);
   
   const handleClick = () => {
@@ -96,6 +102,7 @@ export const FleetStatusCard = ({ handleDiagramClick }: FleetStatusCardProps) =>
                   "text-emerald-500 fill-emerald-500": item.name === "Running",
                   "text-amber-500 fill-amber-500": item.name === "Idle",
                   "text-gray-500 fill-gray-500": item.name === "Stopped",
+                  "text-gray-700 fill-gray-700": item.name === "No data",
                 })} />
                 <span className="text-xs font-medium">{item.name}</span>
               </div>

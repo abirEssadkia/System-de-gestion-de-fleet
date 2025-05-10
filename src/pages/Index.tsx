@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Navbar } from '@/components/dashboard/Navbar';
 import { FilterPanel } from '@/components/dashboard/FilterPanel';
@@ -14,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getLocations, getFallbackLocations } from '@/services/locationService';
-import { DashboardCard, DashboardCardTitle } from '@/components/dashboard/DashboardCard';
 
 const Dashboard = () => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -26,9 +26,11 @@ const Dashboard = () => {
   const { data: locations, isLoading, error } = useQuery({
     queryKey: ['locations'],
     queryFn: getLocations,
-    onError: (error) => {
-      console.error('Error fetching locations, using fallback data', error);
-      return getFallbackLocations();
+    meta: {
+      onError: (error: Error) => {
+        console.error('Error fetching locations, using fallback data', error);
+        return getFallbackLocations();
+      }
     }
   });
 
@@ -76,12 +78,7 @@ const Dashboard = () => {
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {[1, 2, 3, 4].map((placeholder) => (
-              <DashboardCard key={placeholder} className="col-span-1 min-h-[200px]">
-                <DashboardCardTitle>Loading...</DashboardCardTitle>
-                <div className="flex justify-center items-center h-[150px]">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-fleet-navy"></div>
-                </div>
-              </DashboardCard>
+              <LoadingState key={placeholder} title="Loading..." />
             ))}
           </div>
         ) : error ? (
@@ -90,7 +87,7 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {locations?.map((location) => (
+            {displayLocations?.map((location) => (
               <DeliveryMap 
                 key={location.id} 
                 title={location.name}
