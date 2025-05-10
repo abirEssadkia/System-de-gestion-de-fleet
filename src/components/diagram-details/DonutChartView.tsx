@@ -1,18 +1,32 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 interface DonutChartViewProps {
   data: any[];
+  chartType?: string; // Prend en compte le type de graphique des filtres
 }
 
-export const DonutChartView: React.FC<DonutChartViewProps> = ({ data }) => {
+export const DonutChartView: React.FC<DonutChartViewProps> = ({ data, chartType = 'pie' }) => {
   // Vérifier si les données ont le format attendu
-  const validData = Array.isArray(data) && data.every(item => 
-    'percentage' in item && 'color' in item && 'status' in item && 'count' in item
-  );
+  const validData = Array.isArray(data) && data.length > 0;
   
-  const processedData = validData ? data : [];
+  const processedData = useMemo(() => {
+    if (!validData) return [];
+
+    return data.map(item => {
+      const total = data.reduce((sum, d) => sum + d.value, 0);
+      const percentage = total > 0 ? Math.round((item.value / total) * 100) : 0;
+      
+      return {
+        ...item,
+        percentage,
+        status: item.name || '',
+        count: item.value || 0,
+      };
+    });
+  }, [data, validData]);
+
   const RADIAN = Math.PI / 180;
   
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index }: any) => {
@@ -26,6 +40,15 @@ export const DonutChartView: React.FC<DonutChartViewProps> = ({ data }) => {
       </text>
     );
   };
+
+  // Si pas de données valides, afficher un message
+  if (!validData || processedData.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <p className="text-gray-500">No data available for this chart</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center my-8">

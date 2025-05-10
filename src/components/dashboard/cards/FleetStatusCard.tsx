@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { getFleetStatus, FleetStatusData } from '@/services/fleetService';
 import { cn } from '@/lib/utils';
+import { FilterOptions } from '@/components/dashboard/FilterPanel';
 
 interface DonutChartItemProps {
   name: string;
@@ -17,9 +18,10 @@ interface DonutChartItemProps {
 
 interface FleetStatusCardProps {
   handleDiagramClick?: (type: string, title: string, data: any, description?: string) => void;
+  filters?: FilterOptions;
 }
 
-export const FleetStatusCard = ({ handleDiagramClick }: FleetStatusCardProps) => {
+export const FleetStatusCard = ({ handleDiagramClick, filters }: FleetStatusCardProps) => {
   const navigate = useNavigate();
   
   const { data: fleetStatus, isLoading, error } = useQuery({
@@ -36,18 +38,27 @@ export const FleetStatusCard = ({ handleDiagramClick }: FleetStatusCardProps) =>
       ];
     }
     
-    const data: DonutChartItemProps[] = [
-      { name: 'Running', value: fleetStatus.running, color: '#10B981' },
-      { name: 'Idle', value: fleetStatus.idle, color: '#F59E0B' },
-      { name: 'Stopped', value: fleetStatus.stopped, color: '#6B7280' }
-    ];
+    const data: DonutChartItemProps[] = [];
+    
+    // Apply status filters
+    if (filters?.statusFilters?.running) {
+      data.push({ name: 'Running', value: fleetStatus.running, color: '#10B981' });
+    }
+    
+    if (filters?.statusFilters?.idle) {
+      data.push({ name: 'Idle', value: fleetStatus.idle, color: '#F59E0B' });
+    }
+    
+    if (filters?.statusFilters?.stopped) {
+      data.push({ name: 'Stopped', value: fleetStatus.stopped, color: '#6B7280' });
+    }
     
     if (fleetStatus.noData && fleetStatus.noData > 0) {
       data.push({ name: 'No data', value: fleetStatus.noData, color: '#374151' });
     }
     
     return data;
-  }, [fleetStatus]);
+  }, [fleetStatus, filters]);
   
   const handleClick = () => {
     if (handleDiagramClick) {

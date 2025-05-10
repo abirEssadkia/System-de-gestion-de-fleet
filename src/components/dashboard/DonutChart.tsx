@@ -11,13 +11,32 @@ export interface DonutChartItem {
 export interface DonutChartProps {
   items: DonutChartItem[];
   className?: string;
+  chartType?: string; // Pour supporter les différents types de graphiques
 }
 
-export const DonutChart: React.FC<DonutChartProps> = ({ items, className }) => {
+export const DonutChart: React.FC<DonutChartProps> = ({ items, className, chartType = 'donut' }) => {
   const total = items.reduce((acc, item) => acc + item.value, 0);
   const radius = 16;
   const circumference = 2 * Math.PI * radius;
   let offset = 0;
+
+  // Si aucun élément, retourner un cercle vide
+  if (items.length === 0) {
+    return (
+      <div className={cn('relative', className)}>
+        <svg className="w-full h-full" viewBox="0 0 42 42">
+          <circle 
+            cx="21" 
+            cy="21" 
+            r={radius} 
+            fill="transparent" 
+            stroke="#f1f1f1" 
+            strokeWidth="8"
+          />
+        </svg>
+      </div>
+    );
+  }
 
   return (
     <div className={cn('relative', className)}>

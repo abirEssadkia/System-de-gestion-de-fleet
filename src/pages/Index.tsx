@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Navbar } from '@/components/dashboard/Navbar';
-import { FilterPanel } from '@/components/dashboard/FilterPanel';
+import { FilterPanel, FilterOptions } from '@/components/dashboard/FilterPanel';
 import { FleetStatusCard } from '@/components/dashboard/cards/FleetStatusCard';
 import { FleetUtilizationCard } from '@/components/dashboard/cards/FleetUtilizationCard';
 import { TravelledDistanceCard } from '@/components/dashboard/cards/TravelledDistanceCard';
@@ -19,6 +19,18 @@ import { getLocations, getFallbackLocations } from '@/services/locationService';
 
 const Dashboard = () => {
   const [isLoaded, setIsLoaded] = useState(false);
+  const [filters, setFilters] = useState<FilterOptions>({
+    selectedVehicles: [],
+    statusFilters: { 
+      running: true, 
+      idle: true, 
+      stopped: true 
+    },
+    speedThreshold: '',
+    selectedZone: 'all_locations',
+    chartType: 'line',
+    alertType: 'all',
+  });
   const { toast } = useToast();
   const { handleDiagramClick } = useDiagramDetails();
   const navigate = useNavigate();
@@ -32,6 +44,16 @@ const Dashboard = () => {
   useEffect(() => {
     setIsLoaded(true);
   }, []);
+
+  const handleFilterChange = (newFilters: FilterOptions) => {
+    setFilters(newFilters);
+    console.log("Filters applied:", newFilters);
+    // Optionally show a toast to confirm filters were applied
+    toast({
+      title: "Filters Applied",
+      description: "Dashboard updated with new filter settings",
+    });
+  };
 
   // Fallback to hardcoded locations if there's an error
   const displayLocations = locations || getFallbackLocations();
@@ -53,18 +75,18 @@ const Dashboard = () => {
         </div>
 
         {/* Add Filter Panel */}
-        <FilterPanel />
+        <FilterPanel onFilterChange={handleFilterChange} />
         
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          <FleetStatusCard handleDiagramClick={handleDiagramClick} />
-          <FleetUtilizationCard handleDiagramClick={handleDiagramClick} />
-          <TravelledDistanceCard handleDiagramClick={handleDiagramClick} />
-          <FleetIdleCard handleDiagramClick={handleDiagramClick} />
+          <FleetStatusCard handleDiagramClick={handleDiagramClick} filters={filters} />
+          <FleetUtilizationCard handleDiagramClick={handleDiagramClick} filters={filters} />
+          <TravelledDistanceCard handleDiagramClick={handleDiagramClick} filters={filters} />
+          <FleetIdleCard handleDiagramClick={handleDiagramClick} filters={filters} />
         </div>
         
         {/* Second Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6">
-          <AlertCardsRow />
+          <AlertCardsRow filters={filters} />
         </div>
         
         {/* Delivery Maps Row */}
@@ -87,6 +109,7 @@ const Dashboard = () => {
                 key={location.id} 
                 title={location.name}
                 handleClick={handleDiagramClick}
+                filters={filters}
               />
             ))}
           </div>

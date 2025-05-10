@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { AlertType } from '@/utils/alertsData';
@@ -78,18 +79,12 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
 
   const handleZoneChange = (zone: string) => {
     setSelectedZone(zone);
-    if (onFilterChange) {
-      onFilterChange({
-        startDate,
-        endDate,
-        selectedVehicles,
-        statusFilters,
-        speedThreshold,
-        selectedZone: zone,
-        chartType,
-        alertType,
-      });
-    }
+    notifyFilterChange();
+  };
+
+  const handleChartTypeChange = (type: string) => {
+    setChartType(type);
+    notifyFilterChange();
   };
 
   const notifyFilterChange = (newStatusFilters?: typeof statusFilters, newAlertType?: AlertType | 'all') => {
@@ -173,11 +168,11 @@ export const FilterPanel = ({ className, onFilterChange }: FilterPanelProps) => 
             />
             <FilterCustomizationPanel
               chartType={chartType}
-              setChartType={setChartType}
+              setChartType={handleChartTypeChange}
               chartTypes={chartTypes}
               exportOptions={exportOptions}
               columnOptions={columnOptions}
-              notifyFilterChange={notifyFilterChange}
+              notifyChange={notifyFilterChange}
             />
           </div>
           <FilterActionButtons 

@@ -35,7 +35,6 @@ export const CustomizationPanel = ({
               key={type}
               onClick={() => {
                 setChartType(type.toLowerCase());
-                notifyChange();
               }}
               className={cn(
                 "px-3 py-1.5 text-sm rounded-md border transition-colors",
@@ -81,6 +80,7 @@ export const CustomizationPanel = ({
                 id={`column-${column}`}
                 className="h-4 w-4 text-fleet-blue rounded border-gray-300 focus:ring-fleet-blue"
                 defaultChecked
+                onChange={notifyChange}
               />
               <label htmlFor={`column-${column}`} className="ml-2 text-sm text-fleet-dark-gray">
                 {column}
