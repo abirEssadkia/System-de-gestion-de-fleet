@@ -78,43 +78,47 @@ export const FleetStatusCard = ({ handleDiagramClick }: FleetStatusCardProps) =>
         }
       />
       
-      <div className="relative">
+      <div className="p-2">
         <div 
-          className="flex flex-col items-center justify-center cursor-pointer" 
+          className="flex flex-col items-center justify-center cursor-pointer bg-white p-4 rounded-lg shadow-sm" 
           onClick={handleClick}
         >
-          <DonutChart 
-            items={chartData}
-            className="mx-auto w-32 h-32"
-          />
+          <div className="relative">
+            <DonutChart 
+              items={chartData}
+              className="mx-auto w-40 h-40"
+            />
+            
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
+              <div className="text-3xl font-bold">{total}</div>
+              <div className="text-xs text-gray-500">Vehicles</div>
+            </div>
+          </div>
           
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center">
-            <div className="text-2xl font-bold">{total}</div>
-            <div className="text-xs text-gray-500">Vehicles</div>
+          <div className="w-full mt-6 grid grid-cols-4 gap-2">
+            {chartData.map((item) => (
+              <div key={item.name} className="flex flex-col items-center bg-gray-50 p-2 rounded-md">
+                <div className="flex items-center mb-1">
+                  <Circle 
+                    className={cn("h-3 w-3 mr-1 fill-current", {
+                      "text-emerald-500": item.name === "Running",
+                      "text-amber-500": item.name === "Idle",
+                      "text-gray-500": item.name === "Stopped",
+                      "text-gray-700": item.name === "No data",
+                    })}
+                  />
+                  <span className="text-xs">{item.name}</span>
+                </div>
+                <span className="text-lg font-semibold">{item.value}</span>
+              </div>
+            ))}
           </div>
         </div>
         
-        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-          {chartData.map((item) => (
-            <div key={item.name} className="flex flex-col items-center">
-              <div className="flex items-center justify-center mb-1">
-                <Circle className={cn("h-3 w-3 mr-1", {
-                  "text-emerald-500 fill-emerald-500": item.name === "Running",
-                  "text-amber-500 fill-amber-500": item.name === "Idle",
-                  "text-gray-500 fill-gray-500": item.name === "Stopped",
-                  "text-gray-700 fill-gray-700": item.name === "No data",
-                })} />
-                <span className="text-xs font-medium">{item.name}</span>
-              </div>
-              <span className="text-sm font-semibold">{item.value}</span>
-            </div>
-          ))}
-        </div>
-        
-        <div className="mt-4 flex items-center justify-between text-xs">
+        <div className="mt-4 flex items-center justify-between text-xs px-2">
           <div className="flex items-center">
             <span className="text-gray-500">vs last week</span>
-            <span className={cn("ml-2 flex items-center", {
+            <span className={cn("ml-2 flex items-center font-medium", {
               "text-emerald-500": percentChange > 0,
               "text-red-500": percentChange < 0
             })}>

@@ -238,13 +238,17 @@ export interface FleetStatusData {
   noData?: number;
 }
 
-// Add fleet status function - mock data instead of Supabase
+// Add fleet status function - mock data only
 export const getFleetStatus = async (): Promise<FleetStatusData> => {
-  // Return mock data directly
-  return {
-    running: 80,
-    idle: 13,
-    stopped: 5,
-    noData: 2
-  };
+  // Simulate API call with delay
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        running: 80,
+        idle: 13,
+        stopped: 5,
+        noData: 2
+      });
+    }, 600);
+  });
 };

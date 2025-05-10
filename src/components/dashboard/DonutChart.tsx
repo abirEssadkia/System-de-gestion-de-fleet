@@ -22,8 +22,17 @@ export const DonutChart: React.FC<DonutChartProps> = ({ items, className }) => {
   return (
     <div className={cn('relative', className)}>
       <svg className="w-full h-full" viewBox="0 0 42 42">
-        <circle className="text-gray-100" strokeWidth="4" stroke="currentColor" fill="transparent" r={radius} cx="21" cy="21" />
+        {/* Background circle */}
+        <circle 
+          cx="21" 
+          cy="21" 
+          r={radius} 
+          fill="transparent" 
+          stroke="#f1f1f1" 
+          strokeWidth="8"
+        />
         
+        {/* Colored segments */}
         {items.map((item, index) => {
           const percentage = total > 0 ? item.value / total : 0;
           const strokeDasharray = `${circumference * percentage} ${circumference * (1 - percentage)}`;
@@ -35,20 +44,19 @@ export const DonutChart: React.FC<DonutChartProps> = ({ items, className }) => {
           return (
             <circle
               key={index}
-              className="stroke-current transition-all duration-500"
-              strokeWidth="4"
+              cx="21"
+              cy="21"
+              r={radius}
+              fill="transparent"
+              stroke={item.color}
+              strokeWidth="8"
               strokeDasharray={strokeDasharray}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
-              stroke={item.color}
-              fill="transparent"
-              r={radius}
-              cx="21"
-              cy="21"
               style={{
                 transformOrigin: '50% 50%',
                 transform: 'rotate(-90deg)',
-                transition: 'stroke-dasharray 0.5s ease, stroke-dashoffset 0.5s ease'
+                transition: 'stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease'
               }}
             />
           );
