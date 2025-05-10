@@ -1,6 +1,7 @@
+
 import { Vehicle, Driver } from '@/types/fleet';
 import { toast } from '@/hooks/use-toast';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 // Mock data for vehicles
 const mockVehicles: Vehicle[] = [

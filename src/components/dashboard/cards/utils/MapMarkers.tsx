@@ -4,14 +4,14 @@ import { Marker, Popup } from 'react-leaflet';
 import { createAlertIcon } from './AlertIcon';
 import { Point } from '@/components/map-detail-view/types';
 
-interface MapMarkersProps {
-  mapPoints: Point[];
+export interface MapMarkersProps {
+  points: Point[];
 }
 
-export const MapMarkers: React.FC<MapMarkersProps> = ({ mapPoints }) => {
+export const MapMarkers: React.FC<MapMarkersProps> = ({ points }) => {
   return (
     <>
-      {mapPoints.map((point, index) => (
+      {points.map((point, index) => (
         <Marker 
           key={index} 
           position={[point.lat, point.lng]}

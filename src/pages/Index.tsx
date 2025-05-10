@@ -10,6 +10,7 @@ import { AlertCardsRow } from '@/components/dashboard/cards/AlertCardsRow';
 import { useToast } from '@/hooks/use-toast';
 import { useDiagramDetails } from '@/hooks/useDiagramDetails';
 import { DeliveryMap } from '@/components/dashboard/cards/DeliveryMap';
+import { LoadingState } from '@/components/dashboard/cards/utils/LoadingState';
 import { BellDot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
