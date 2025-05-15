@@ -33,7 +33,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 type ReportFormat = 'pdf' | 'excel';
-type ReportType = 'vehicle-status' | 'driver-performance' | 'maintenance-cost' | 'fleet-utilization';
+type ReportType = 'vehicle-status' | 'driver-performance' | 'maintenance-cost' | 'fleet-utilization' | 'overspeed';
 
 // Sample data for the reports
 const generateReportData = (reportType: ReportType) => {
@@ -70,6 +70,14 @@ const generateReportData = (reportType: ReportType) => {
         { id: 'F004', vehicle: 'Delivery 404', utilization: '65%', idleTime: '20%', maintenance: '15%', fuelConsumption: '280L', costPerKm: '1.7 MAD' },
         { id: 'F005', vehicle: 'Van 505', utilization: '78%', idleTime: '12%', maintenance: '10%', fuelConsumption: '350L', costPerKm: '2.0 MAD' },
       ];
+    case 'overspeed':
+      return [
+        { id: 'O001', vehicle: 'Truck 101', driver: 'Mohammed Ali', date: '2025-05-12', time: '09:23:45', speed: '105 km/h', speedLimit: '80 km/h', location: 'N1 Highway, km 45', duration: '2.5 min' },
+        { id: 'O002', vehicle: 'Van 202', driver: 'Ahmed Hassan', date: '2025-05-11', time: '14:17:20', speed: '95 km/h', speedLimit: '70 km/h', location: 'Rabat city center', duration: '1.2 min' },
+        { id: 'O003', vehicle: 'Truck 303', driver: 'Yasmine Bakkali', date: '2025-05-10', time: '11:32:18', speed: '120 km/h', speedLimit: '90 km/h', location: 'A1 Highway, km 85', duration: '3.7 min' },
+        { id: 'O004', vehicle: 'Delivery 404', driver: 'Karim Tazi', date: '2025-05-09', time: '16:45:10', speed: '85 km/h', speedLimit: '60 km/h', location: 'Casablanca, residential area', duration: '1.8 min' },
+        { id: 'O005', vehicle: 'Van 505', driver: 'Fatima Zohra', date: '2025-05-09', time: '08:12:55', speed: '110 km/h', speedLimit: '80 km/h', location: 'Tangier - Tetouan road', duration: '4.2 min' },
+      ];
     default:
       return [];
   }
@@ -89,6 +97,7 @@ export const ReportGenerator = () => {
       case 'driver-performance': return 'Driver Performance';
       case 'maintenance-cost': return 'Maintenance Cost Analysis';
       case 'fleet-utilization': return 'Fleet Utilization';
+      case 'overspeed': return 'Overspeed Report';
       default: return '';
     }
   };
@@ -222,6 +231,7 @@ export const ReportGenerator = () => {
                   <SelectItem value="fleet-utilization">Fleet Utilization</SelectItem>
                   <SelectItem value="maintenance-cost">Maintenance Cost Analysis</SelectItem>
                   <SelectItem value="driver-performance">Driver Performance</SelectItem>
+                  <SelectItem value="overspeed">Overspeed Report</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>

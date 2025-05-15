@@ -20,7 +20,7 @@ import { FileText, FileSpreadsheet } from 'lucide-react';
 import { format } from 'date-fns';
 
 type ReportFormat = 'pdf' | 'excel';
-type ReportType = 'vehicle-status' | 'driver-performance' | 'maintenance-cost' | 'fleet-utilization';
+type ReportType = 'vehicle-status' | 'driver-performance' | 'maintenance-cost' | 'fleet-utilization' | 'overspeed';
 
 interface ReportPreviewProps {
   reportType: ReportType;
@@ -65,7 +65,16 @@ const fleetUtilizationData = [
   { day: 'Sun', utilization: 30 },
 ];
 
+const overspeedData = [
+  { speedRange: '1-10 km/h', count: 45, percentage: 35 },
+  { speedRange: '11-20 km/h', count: 32, percentage: 25 },
+  { speedRange: '21-30 km/h', count: 25, percentage: 20 },
+  { speedRange: '31-40 km/h', count: 18, percentage: 15 },
+  { speedRange: '41+ km/h', count: 6, percentage: 5 },
+];
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+const OVERSPEED_COLORS = ['#33C3F0', '#6E59A5', '#8B5CF6', '#D946EF', '#ea384c'];
 
 export const ReportPreview: React.FC<ReportPreviewProps> = ({ 
   reportType, 
@@ -79,6 +88,7 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
       case 'driver-performance': return 'Driver Performance';
       case 'maintenance-cost': return 'Maintenance Cost Analysis';
       case 'fleet-utilization': return 'Fleet Utilization';
+      case 'overspeed': return 'Overspeed';
       default: return '';
     }
   };
@@ -172,6 +182,29 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
                 activeDot={{ r: 8 }} 
               />
             </LineChart>
+          </ResponsiveContainer>
+        );
+      
+      case 'overspeed':
+        return (
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart
+              data={overspeedData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="speedRange" />
+              <YAxis yAxisId="left" orientation="left" stroke="#9b87f5" />
+              <YAxis yAxisId="right" orientation="right" stroke="#ea384c" unit="%" domain={[0, 100]} />
+              <Tooltip />
+              <Legend />
+              <Bar yAxisId="left" dataKey="count" name="Number of Incidents" radius={[4, 4, 0, 0]}>
+                {overspeedData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={OVERSPEED_COLORS[index % OVERSPEED_COLORS.length]} />
+                ))}
+              </Bar>
+              <Bar yAxisId="right" dataKey="percentage" name="Percentage of Total" fill="#ea384c" radius={[4, 4, 0, 0]} />
+            </BarChart>
           </ResponsiveContainer>
         );
       
