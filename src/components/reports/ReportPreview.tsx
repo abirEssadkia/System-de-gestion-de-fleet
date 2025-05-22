@@ -65,16 +65,20 @@ const fleetUtilizationData = [
   { day: 'Sun', utilization: 30 },
 ];
 
+// Updated overspeed data with 5km/h increments
 const overspeedData = [
-  { speedRange: '1-10 km/h', count: 45, percentage: 35 },
-  { speedRange: '11-20 km/h', count: 32, percentage: 25 },
-  { speedRange: '21-30 km/h', count: 25, percentage: 20 },
-  { speedRange: '31-40 km/h', count: 18, percentage: 15 },
-  { speedRange: '41+ km/h', count: 6, percentage: 5 },
+  { speedRange: '0-5 km/h', count: 45, percentage: 35 },
+  { speedRange: '5-10 km/h', count: 32, percentage: 25 },
+  { speedRange: '10-15 km/h', count: 25, percentage: 20 },
+  { speedRange: '15-20 km/h', count: 18, percentage: 15 },
+  { speedRange: '20+ km/h', count: 6, percentage: 5 },
 ];
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
-const OVERSPEED_COLORS = ['#33C3F0', '#6E59A5', '#8B5CF6', '#D946EF', '#ea384c'];
+
+// Using a single color for each axis as requested
+const OVERSPEED_BARS_COLOR = '#33C3F0'; // Blue for the left axis (count)
+const OVERSPEED_PERCENTAGE_COLOR = '#ea384c'; // Red for the right axis (percentage)
 
 export const ReportPreview: React.FC<ReportPreviewProps> = ({ 
   reportType, 
@@ -194,16 +198,46 @@ export const ReportPreview: React.FC<ReportPreviewProps> = ({
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="speedRange" />
-              <YAxis yAxisId="left" orientation="left" stroke="#9b87f5" />
-              <YAxis yAxisId="right" orientation="right" stroke="#ea384c" unit="%" domain={[0, 100]} />
+              <YAxis 
+                yAxisId="left" 
+                orientation="left" 
+                stroke={OVERSPEED_BARS_COLOR} 
+                label={{ 
+                  value: 'Number of Vehicles', 
+                  angle: -90, 
+                  position: 'insideLeft',
+                  style: { fill: OVERSPEED_BARS_COLOR }  
+                }} 
+              />
+              <YAxis 
+                yAxisId="right" 
+                orientation="right" 
+                stroke={OVERSPEED_PERCENTAGE_COLOR} 
+                unit="%" 
+                domain={[0, 100]} 
+                label={{ 
+                  value: 'Percentage of Exceeding', 
+                  angle: 90, 
+                  position: 'insideRight',
+                  style: { fill: OVERSPEED_PERCENTAGE_COLOR } 
+                }} 
+              />
               <Tooltip />
               <Legend />
-              <Bar yAxisId="left" dataKey="count" name="Number of Incidents" radius={[4, 4, 0, 0]}>
-                {overspeedData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={OVERSPEED_COLORS[index % OVERSPEED_COLORS.length]} />
-                ))}
-              </Bar>
-              <Bar yAxisId="right" dataKey="percentage" name="Percentage of Total" fill="#ea384c" radius={[4, 4, 0, 0]} />
+              <Bar 
+                yAxisId="left" 
+                dataKey="count" 
+                name="Number of Vehicles" 
+                fill={OVERSPEED_BARS_COLOR} 
+                radius={[4, 4, 0, 0]} 
+              />
+              <Bar 
+                yAxisId="right" 
+                dataKey="percentage" 
+                name="Percentage of Exceeding" 
+                fill={OVERSPEED_PERCENTAGE_COLOR} 
+                radius={[4, 4, 0, 0]} 
+              />
             </BarChart>
           </ResponsiveContainer>
         );

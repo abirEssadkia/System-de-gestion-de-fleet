@@ -9,7 +9,7 @@ interface FilterCustomizationPanelProps {
   setChartType: (v: string) => void;
   exportOptions: string[];
   columnOptions: string[];
-  notifyFilterChange: (newStatusFilters?: { running: boolean; idle: boolean; stopped: boolean; }, newAlertType?: AlertType) => void;
+  notifyChange?: (newStatusFilters?: { running: boolean; idle: boolean; stopped: boolean; }, newAlertType?: AlertType) => void;
 }
 
 export const FilterCustomizationPanel = ({
@@ -18,7 +18,7 @@ export const FilterCustomizationPanel = ({
   setChartType,
   exportOptions,
   columnOptions,
-  notifyFilterChange,
+  notifyChange,
 }: FilterCustomizationPanelProps) => (
   <CustomizationPanel
     chartTypes={chartTypes}
@@ -26,6 +26,6 @@ export const FilterCustomizationPanel = ({
     setChartType={setChartType}
     exportOptions={exportOptions}
     columnOptions={columnOptions}
-    notifyChange={notifyFilterChange}
+    notifyChange={notifyChange}
   />
 );
