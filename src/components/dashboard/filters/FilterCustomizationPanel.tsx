@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { CustomizationPanel } from './CustomizationPanel';
+import { AlertType } from '@/utils/alertsData';
 
 interface FilterCustomizationPanelProps {
   chartTypes: string[];
@@ -8,7 +9,7 @@ interface FilterCustomizationPanelProps {
   setChartType: (v: string) => void;
   exportOptions: string[];
   columnOptions: string[];
-  notifyFilterChange: () => void;
+  notifyFilterChange: (newStatusFilters?: { running: boolean; idle: boolean; stopped: boolean; }, newAlertType?: AlertType) => void;
 }
 
 export const FilterCustomizationPanel = ({

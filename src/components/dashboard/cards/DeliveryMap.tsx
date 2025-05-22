@@ -7,18 +7,21 @@ import { MapMarkers } from '@/components/dashboard/cards/utils/MapMarkers';
 import { LoadingState } from '@/components/dashboard/cards/utils/LoadingState';
 import { ErrorState } from '@/components/dashboard/cards/utils/ErrorState';
 import 'leaflet/dist/leaflet.css';
+import { FilterOptions } from '@/components/dashboard/FilterPanel';
 
 interface DeliveryMapProps {
   title: string;
   handleClick?: (type: string, title: string, data: any, description?: string) => void;
+  filters?: FilterOptions;
 }
 
-export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, handleClick }) => {
+export const DeliveryMap: React.FC<DeliveryMapProps> = ({ title, handleClick, filters }) => {
   const { mapPoints, isLoading, error, mapData } = useMapPoints(title);
   
   const handleMapClick = () => {
     if (handleClick) {
-      handleClick('map', title, mapData, `Location tracking for ${title} delivery operations`);
+      // Ensure we pass the individual points to the map detail view
+      handleClick('map', title, mapPoints, `Location tracking for ${title} delivery operations`);
     }
   };
   

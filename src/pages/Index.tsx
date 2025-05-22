@@ -79,14 +79,14 @@ const Dashboard = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
           <FleetStatusCard handleDiagramClick={handleDiagramClick} filters={filters} />
-          <FleetUtilizationCard handleDiagramClick={handleDiagramClick} filters={filters} />
-          <TravelledDistanceCard handleDiagramClick={handleDiagramClick} filters={filters} />
-          <FleetIdleCard handleDiagramClick={handleDiagramClick} filters={filters} />
+          <FleetUtilizationCard handleDiagramClick={handleDiagramClick} />
+          <TravelledDistanceCard handleDiagramClick={handleDiagramClick} />
+          <FleetIdleCard handleDiagramClick={handleDiagramClick} />
         </div>
         
         {/* Second Row */}
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-6">
-          <AlertCardsRow filters={filters} />
+          <AlertCardsRow />
         </div>
         
         {/* Delivery Maps Row */}
@@ -109,7 +109,6 @@ const Dashboard = () => {
                 key={location.id} 
                 title={location.name}
                 handleClick={handleDiagramClick}
-                filters={filters}
               />
             ))}
           </div>

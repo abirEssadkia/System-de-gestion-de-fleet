@@ -12,6 +12,7 @@ import { LocationDetails } from '@/components/map-detail-view/LocationDetails';
 import { useMapCoordinates } from '@/components/map-detail-view/MapCoordinates';
 import { useMapPointsFilter } from '@/components/map-detail-view/MapPointsFilter';
 import { Point, FilterOptions as FilterOptionsType } from '@/components/map-detail-view/types';
+import { useLocationMapPoints } from '@/hooks/useLocationMapPoints';
 
 const MapDetailView = () => {
   const [searchParams] = useSearchParams();
@@ -50,9 +51,12 @@ const MapDetailView = () => {
     if (dataString) {
       try {
         const data = JSON.parse(dataString);
+        // Check if data is an array and has items
         if (Array.isArray(data) && data.length > 0) {
+          console.log("Parsed map points:", data);
           setRawMapPoints(data);
         } else {
+          console.log("Using alert data for type:", typeParam);
           // If no valid data, use the alert data
           setRawMapPoints(getAlertPointsByType(typeParam));
         }
@@ -76,7 +80,7 @@ const MapDetailView = () => {
   });
 
   const handleGoBack = () => {
-    navigate('/alert-management');
+    navigate('/');
   };
 
   const handleFilterChange = (newFilters: FilterOptions) => {
@@ -97,7 +101,7 @@ const MapDetailView = () => {
           className="flex items-center text-fleet-navy hover:text-fleet-blue mb-6 transition-colors"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
-          Back to Alert Management
+          Back to Dashboard
         </button>
         
         <h1 className="text-2xl font-bold text-fleet-navy mb-2">{title || 'Alert Map'}</h1>
