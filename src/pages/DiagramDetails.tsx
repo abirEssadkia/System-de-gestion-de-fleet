@@ -1,77 +1,61 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Navbar } from '@/components/dashboard/Navbar';
 import { Header } from '@/components/diagram-details/Header';
 import { DonutChartView } from '@/components/diagram-details/DonutChartView';
 import { LineChartView } from '@/components/diagram-details/LineChartView';
 import { CircularProgressView } from '@/components/diagram-details/CircularProgressView';
-import { MapView } from '@/components/diagram-details/MapView';
 import { AdditionalInfo } from '@/components/diagram-details/AdditionalInfo';
-
-interface DiagramDetails {
-  type: 'donut' | 'line' | 'bar' | 'progress' | 'map';
-  title: string;
-  description?: string;
-  data: any;
-}
 
 const DiagramDetails = () => {
   const [searchParams] = useSearchParams();
-  const [details, setDetails] = useState<DiagramDetails | null>(null);
+  const type = searchParams.get('type') || 'donut';
+  const title = searchParams.get('title') || 'Chart Details';
+  const description = searchParams.get('description') || '';
+  const dataParam = searchParams.get('data');
   
-  useEffect(() => {
-    const type = searchParams.get('type') as 'donut' | 'line' | 'bar' | 'progress' | 'map';
-    const title = searchParams.get('title');
-    const description = searchParams.get('description');
-    const dataString = searchParams.get('data');
-    
-    if (type && title && dataString) {
-      try {
-        const data = JSON.parse(dataString);
-        setDetails({
-          type,
-          title,
-          description: description || undefined,
-          data
-        });
-      } catch (error) {
-        console.error('Error parsing data', error);
-      }
-    }
-  }, [searchParams]);
-  
-  if (!details) {
-    return <div className="p-8 text-center">Loading...</div>;
+  let data = [];
+  try {
+    data = dataParam ? JSON.parse(dataParam) : [];
+  } catch (error) {
+    console.error('Error parsing data:', error);
   }
-  
-  const renderChartByType = () => {
-    switch (details.type) {
+
+  const renderChart = () => {
+    switch (type) {
       case 'donut':
-        return <DonutChartView data={details.data} />;
+        return <DonutChartView data={data} />;
       case 'line':
-        return <LineChartView data={details.data} />;
+        return <LineChartView data={data} />;
+      case 'bar':
+        return <LineChartView data={data} />;
       case 'progress':
-        return <CircularProgressView data={details.data} />;
-      case 'map':
-        return <MapView data={details.data} />;
+        return (
+          <CircularProgressView 
+            data={data} 
+            title={title}
+            description={description}
+          />
+        );
       default:
-        return <div>Unsupported chart type</div>;
+        return <DonutChartView data={data} />;
     }
   };
-  
+
   return (
-    <div className="min-h-screen bg-fleet-gray p-6">
-      <div className="container mx-auto">
-        <Header 
-          title={details.title} 
-          description={details.description} 
-        />
-        
-        <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-          {renderChartByType()}
-          <AdditionalInfo title={details.title} data={details.data} />
+    <div className="min-h-screen bg-fleet-gray">
+      <Navbar />
+      
+      <main className="container mx-auto px-4 py-6">
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <Header title={title} description={description} />
+          
+          {renderChart()}
+          
+          <AdditionalInfo type={type} />
         </div>
-      </div>
+      </main>
     </div>
   );
 };
