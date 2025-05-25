@@ -31,9 +31,12 @@ const DiagramDetails = () => {
       case 'bar':
         return <LineChartView data={data} />;
       case 'progress':
+        // Extract the first number from data array or use 0 as default
+        const progressValue = Array.isArray(data) && data.length > 0 ? 
+          (typeof data[0] === 'number' ? data[0] : 0) : 0;
         return (
           <CircularProgressView 
-            data={data} 
+            data={progressValue}
             title={title}
             description={description}
           />
@@ -53,7 +56,7 @@ const DiagramDetails = () => {
           
           {renderChart()}
           
-          <AdditionalInfo type={type} />
+          <AdditionalInfo title={title} data={data} />
         </div>
       </main>
     </div>
