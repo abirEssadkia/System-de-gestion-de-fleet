@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Vehicle } from '@/types/fleet';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -50,24 +50,56 @@ const vehicleFormSchema = z.object({
 });
 
 export const VehicleForm: React.FC<VehicleFormProps> = ({ open, onClose, onSubmit, vehicle }) => {
-  // Make sure defaultValues has non-optional values for all required fields
-  const defaultValues = {
-    id: vehicle?.id,
-    licensePlate: vehicle?.licensePlate || '',
-    type: vehicle?.type || 'Truck',
-    status: vehicle?.status || 'Available',
-    model: vehicle?.model || '',
-    year: vehicle?.year || new Date().getFullYear(),
-    lastMaintenance: vehicle?.lastMaintenance || new Date().toISOString().split('T')[0],
-    fuelLevel: vehicle?.fuelLevel || 100,
-    mileage: vehicle?.mileage || 0,
-    assignedDriverId: vehicle?.assignedDriverId || '',
-  };
-
   const form = useForm<z.infer<typeof vehicleFormSchema>>({
     resolver: zodResolver(vehicleFormSchema),
-    defaultValues,
+    defaultValues: {
+      id: '',
+      licensePlate: '',
+      type: 'Truck',
+      status: 'Available',
+      model: '',
+      year: new Date().getFullYear(),
+      lastMaintenance: new Date().toISOString().split('T')[0],
+      fuelLevel: 100,
+      mileage: 0,
+      assignedDriverId: '',
+    },
   });
+
+  // Reset form when vehicle prop changes or dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      if (vehicle) {
+        // Editing existing vehicle - populate with vehicle data
+        form.reset({
+          id: vehicle.id,
+          licensePlate: vehicle.licensePlate,
+          type: vehicle.type,
+          status: vehicle.status,
+          model: vehicle.model,
+          year: vehicle.year,
+          lastMaintenance: vehicle.lastMaintenance,
+          fuelLevel: vehicle.fuelLevel,
+          mileage: vehicle.mileage,
+          assignedDriverId: vehicle.assignedDriverId || '',
+        });
+      } else {
+        // Adding new vehicle - reset to defaults
+        form.reset({
+          id: '',
+          licensePlate: '',
+          type: 'Truck',
+          status: 'Available',
+          model: '',
+          year: new Date().getFullYear(),
+          lastMaintenance: new Date().toISOString().split('T')[0],
+          fuelLevel: 100,
+          mileage: 0,
+          assignedDriverId: '',
+        });
+      }
+    }
+  }, [vehicle, open, form]);
 
   const handleSubmit = (data: z.infer<typeof vehicleFormSchema>) => {
     // Ensure all required fields are present
@@ -83,7 +115,7 @@ export const VehicleForm: React.FC<VehicleFormProps> = ({ open, onClose, onSubmi
       assignedDriverId: data.assignedDriverId,
     };
     
-    // Only include id if it exists
+    // Include id if it exists (for editing)
     if (data.id) {
       vehicleData.id = data.id;
     }
@@ -122,7 +154,7 @@ export const VehicleForm: React.FC<VehicleFormProps> = ({ open, onClose, onSubmi
                     <FormLabel>Vehicle Type</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -174,7 +206,7 @@ export const VehicleForm: React.FC<VehicleFormProps> = ({ open, onClose, onSubmi
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
