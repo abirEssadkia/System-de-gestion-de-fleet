@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MaintenanceRecord, Vehicle } from '@/types/fleet';
 import {
   Dialog,
@@ -65,24 +65,56 @@ export const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
   record, 
   vehicles 
 }) => {
-  // Make sure defaultValues has non-optional values for all required fields
-  const defaultValues = {
-    id: record?.id,
-    vehicleId: record?.vehicleId || '',
-    type: record?.type || 'Routine',
-    startDate: record?.startDate || new Date().toISOString().split('T')[0],
-    status: record?.status || 'Scheduled',
-    description: record?.description || '',
-    cost: record?.cost || 0,
-    technician: record?.technician || '',
-    notes: record?.notes || '',
-    endDate: record?.endDate || ''
-  };
-
   const form = useForm<z.infer<typeof maintenanceFormSchema>>({
     resolver: zodResolver(maintenanceFormSchema),
-    defaultValues,
+    defaultValues: {
+      id: '',
+      vehicleId: '',
+      type: 'Routine',
+      startDate: new Date().toISOString().split('T')[0],
+      status: 'Scheduled',
+      description: '',
+      cost: 0,
+      technician: '',
+      notes: '',
+      endDate: ''
+    },
   });
+
+  // Reset form when record prop changes or dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      if (record) {
+        // Editing existing record - populate with record data
+        form.reset({
+          id: record.id,
+          vehicleId: record.vehicleId,
+          type: record.type,
+          startDate: record.startDate,
+          status: record.status,
+          description: record.description,
+          cost: record.cost,
+          technician: record.technician,
+          notes: record.notes || '',
+          endDate: record.endDate || ''
+        });
+      } else {
+        // Adding new record - reset to defaults
+        form.reset({
+          id: '',
+          vehicleId: '',
+          type: 'Routine',
+          startDate: new Date().toISOString().split('T')[0],
+          status: 'Scheduled',
+          description: '',
+          cost: 0,
+          technician: '',
+          notes: '',
+          endDate: ''
+        });
+      }
+    }
+  }, [record, open, form]);
 
   const handleSubmit = (data: z.infer<typeof maintenanceFormSchema>) => {
     // Ensure all required fields are present and properly typed
@@ -98,13 +130,12 @@ export const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
       endDate: data.endDate || undefined
     };
     
-    // Only include id if it exists
+    // Include id if it exists (for editing)
     if (data.id) {
       maintenanceData.id = data.id;
     }
     
     onSubmit(maintenanceData);
-    form.reset();
     onClose();
   };
 
@@ -126,7 +157,7 @@ export const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
                     <FormLabel>Vehicle</FormLabel>
                     <Select 
                       onValueChange={field.onChange} 
-                      defaultValue={field.value}
+                      value={field.value}
                       disabled={!!record} // Disable if editing existing record
                     >
                       <FormControl>
@@ -153,7 +184,7 @@ export const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Maintenance Type</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
@@ -209,7 +240,7 @@ export const MaintenanceForm: React.FC<MaintenanceFormProps> = ({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />

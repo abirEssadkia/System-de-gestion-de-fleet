@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useEffect } from 'react';
 import { Driver } from '@/types/fleet';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -50,25 +51,59 @@ const driverFormSchema = z.object({
 });
 
 export const DriverForm: React.FC<DriverFormProps> = ({ open, onClose, onSubmit, driver }) => {
-  // Make sure defaultValues has non-optional values for all required fields
-  const defaultValues = {
-    id: driver?.id,
-    name: driver?.name || '',
-    status: driver?.status || 'Available',
-    license: driver?.license || '',
-    licenseExpiry: driver?.licenseExpiry || '',
-    phone: driver?.phone || '',
-    email: driver?.email || '',
-    rating: driver?.rating || 5.0,
-    totalTrips: driver?.totalTrips || 0,
-    hireDate: driver?.hireDate || new Date().toISOString().split('T')[0],
-    assignedVehicleId: driver?.assignedVehicleId || '',
-  };
-
   const form = useForm<z.infer<typeof driverFormSchema>>({
     resolver: zodResolver(driverFormSchema),
-    defaultValues,
+    defaultValues: {
+      id: '',
+      name: '',
+      status: 'Available',
+      license: '',
+      licenseExpiry: '',
+      phone: '',
+      email: '',
+      rating: 5.0,
+      totalTrips: 0,
+      hireDate: new Date().toISOString().split('T')[0],
+      assignedVehicleId: '',
+    },
   });
+
+  // Reset form when driver prop changes or dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      if (driver) {
+        // Editing existing driver - populate with driver data
+        form.reset({
+          id: driver.id,
+          name: driver.name,
+          status: driver.status,
+          license: driver.license,
+          licenseExpiry: driver.licenseExpiry,
+          phone: driver.phone,
+          email: driver.email,
+          rating: driver.rating,
+          totalTrips: driver.totalTrips,
+          hireDate: driver.hireDate,
+          assignedVehicleId: driver.assignedVehicleId || '',
+        });
+      } else {
+        // Adding new driver - reset to defaults
+        form.reset({
+          id: '',
+          name: '',
+          status: 'Available',
+          license: '',
+          licenseExpiry: '',
+          phone: '',
+          email: '',
+          rating: 5.0,
+          totalTrips: 0,
+          hireDate: new Date().toISOString().split('T')[0],
+          assignedVehicleId: '',
+        });
+      }
+    }
+  }, [driver, open, form]);
 
   const handleSubmit = (data: z.infer<typeof driverFormSchema>) => {
     // Ensure all required fields are present
@@ -85,7 +120,7 @@ export const DriverForm: React.FC<DriverFormProps> = ({ open, onClose, onSubmit,
       assignedVehicleId: data.assignedVehicleId,
     };
     
-    // Only include id if it exists
+    // Include id if it exists (for editing)
     if (data.id) {
       driverData.id = data.id;
     }
@@ -124,7 +159,7 @@ export const DriverForm: React.FC<DriverFormProps> = ({ open, onClose, onSubmit,
                     <FormLabel>Status</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
