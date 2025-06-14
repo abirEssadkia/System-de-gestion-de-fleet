@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Navbar } from '@/components/dashboard/Navbar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -188,7 +187,7 @@ const Maintenance = () => {
   const activeVehiclesCount = vehicles.filter(v => v.status === 'Maintenance').length;
   const totalVehiclesCount = vehicles.length;
   
-  // Cost by vehicle type
+  // Cost by vehicle type - Initialize with all possible vehicle types
   const costByVehicleType = [
     { name: 'Truck', value: 0 },
     { name: 'Van', value: 0 },
@@ -196,6 +195,7 @@ const Maintenance = () => {
     { name: 'Bus', value: 0 }
   ];
   
+  // Calculate costs for each vehicle type
   allRecords.forEach(record => {
     if (record.status === 'Completed') {
       const vehicle = vehicles.find(v => v.id === record.vehicleId);
@@ -208,8 +208,7 @@ const Maintenance = () => {
     }
   });
   
-  // Remove any vehicle types with zero value
-  const filteredCostByVehicleType = costByVehicleType.filter(item => item.value > 0);
+  // Keep all vehicle types in the chart, including those with zero cost
   
   return (
     <div className="min-h-screen bg-fleet-gray">
@@ -263,7 +262,7 @@ const Maintenance = () => {
               totalVehicles={totalVehiclesCount}
               scheduledMaintenances={scheduledMaintenances.length}
               maintenanceTypeData={typesFrequency}
-              costByVehicleType={filteredCostByVehicleType}
+              costByVehicleType={costByVehicleType}
               maintenanceDuration={durationStats}
             />
           </TabsContent>
