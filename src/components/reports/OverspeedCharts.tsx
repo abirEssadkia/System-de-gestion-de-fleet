@@ -172,7 +172,7 @@ export const OverspeedCharts: React.FC<OverspeedChartsProps> = ({ data }) => {
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
-      </div>
+      </Card>
 
       {/* Data Table */}
       <Card>
