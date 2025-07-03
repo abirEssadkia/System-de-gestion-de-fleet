@@ -122,7 +122,10 @@ export const OverspeedCharts: React.FC<OverspeedChartsProps> = ({ data }) => {
                   ]}
                 />
                 <Legend 
-                  formatter={(value, entry) => entry.payload.range}
+                  formatter={(value, entry) => {
+                    const payload = entry.payload as OverspeedData;
+                    return payload.range;
+                  }}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -169,7 +172,7 @@ export const OverspeedCharts: React.FC<OverspeedChartsProps> = ({ data }) => {
             </LineChart>
           </ResponsiveContainer>
         </CardContent>
-      </Card>
+      </div>
 
       {/* Data Table */}
       <Card>
