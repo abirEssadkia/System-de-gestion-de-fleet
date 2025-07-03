@@ -121,13 +121,7 @@ export const OverspeedCharts: React.FC<OverspeedChartsProps> = ({ data }) => {
                     props.payload.range
                   ]}
                 />
-                <Legend 
-                  formatter={(value, entry) => {
-                    // Find the corresponding data item by index
-                    const index = data.findIndex((item, i) => i === entry.payload?.index);
-                    return index >= 0 ? data[index].range : value;
-                  }}
-                />
+                <Legend />
               </PieChart>
             </ResponsiveContainer>
           </CardContent>
@@ -172,8 +166,8 @@ export const OverspeedCharts: React.FC<OverspeedChartsProps> = ({ data }) => {
               />
             </LineChart>
           </ResponsiveContainer>
-        </CardContent>
-      </Card>
+        </Card>
+      </CardContent>
 
       {/* Data Table */}
       <Card>
