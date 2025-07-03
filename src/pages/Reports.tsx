@@ -113,9 +113,9 @@ const Reports = () => {
 
   const handleExportPDF = async () => {
     try {
-      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/generate-pdf-report?from=${dateFrom}&to=${dateTo}`, {
+      const response = await fetch(`https://qgtidoblhycdzajcpxwyo.supabase.co/functions/v1/generate-pdf-report?from=${dateFrom}&to=${dateTo}`, {
         headers: {
-          'Authorization': `Bearer ${supabase.supabaseKey}`,
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFndGlkb2JoeWNkemFqY3B4d3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDY0MzkyNjksImV4cCI6MjA2MjAxNTI2OX0.-WNvw9pHQ7D-KiPneX9MQCkaDkdDptoHhsnn2lprsy0`,
         }
       });
       
