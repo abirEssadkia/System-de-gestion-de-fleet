@@ -123,8 +123,9 @@ export const OverspeedCharts: React.FC<OverspeedChartsProps> = ({ data }) => {
                 />
                 <Legend 
                   formatter={(value, entry) => {
-                    const payload = entry.payload as OverspeedData;
-                    return payload.range;
+                    // Find the corresponding data item by index
+                    const index = data.findIndex((item, i) => i === entry.payload?.index);
+                    return index >= 0 ? data[index].range : value;
                   }}
                 />
               </PieChart>
