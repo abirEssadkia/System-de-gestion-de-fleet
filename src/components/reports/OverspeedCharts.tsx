@@ -13,7 +13,7 @@ interface OverspeedChartsProps {
   data: OverspeedData[];
 }
 
-const OverspeedCharts: React.FC<OverspeedChartsProps> = ({ data }) => {
+export const OverspeedCharts: React.FC<OverspeedChartsProps> = ({ data }) => {
   const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#ff0000'];
 
   const totalVehicles = data.reduce((sum, item) => sum + item.vehicle_count, 0);
@@ -106,7 +106,7 @@ const OverspeedCharts: React.FC<OverspeedChartsProps> = ({ data }) => {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ range, percentage }) => `${percentage.toFixed(1)}%`}
+                  label={({ percentage }) => `${percentage.toFixed(1)}%`}
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="vehicle_count"
@@ -215,5 +215,3 @@ const OverspeedCharts: React.FC<OverspeedChartsProps> = ({ data }) => {
     </div>
   );
 };
-
-export default OverspeedCharts;

@@ -9,8 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Download, FileText, Sync, TrendingUp, AlertTriangle, Clock } from 'lucide-react';
+import { Download, FileText, RefreshCw, TrendingUp, AlertTriangle, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { OverspeedCharts } from '@/components/reports/OverspeedCharts';
 
 interface OverspeedData {
   range: string;
@@ -145,8 +146,6 @@ const Reports = () => {
     }
   };
 
-  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#ff0000'];
-
   return (
     <div className="min-h-screen bg-fleet-gray">
       <Navbar />
@@ -192,7 +191,7 @@ const Reports = () => {
                 disabled={isGenerating}
                 className="w-full"
               >
-                <Sync className="h-4 w-4 mr-2" />
+                <RefreshCw className="h-4 w-4 mr-2" />
                 Synchroniser PinMe.io
               </Button>
             </CardContent>
@@ -270,54 +269,9 @@ const Reports = () => {
               </CardContent>
             </Card>
 
-            {/* Charts */}
+            {/* Use the new OverspeedCharts component */}
             {overspeedData.length > 0 && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Nombre de Véhicules par Tranche</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={overspeedData}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="range" />
-                        <YAxis />
-                        <Tooltip />
-                        <Legend />
-                        <Bar dataKey="vehicle_count" fill="#8884d8" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Répartition des Dépassements (%)</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={overspeedData}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ range, percentage }) => `${range}: ${percentage}%`}
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="percentage"
-                        >
-                          {overspeedData.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </CardContent>
-                </Card>
-              </div>
+              <OverspeedCharts data={overspeedData} />
             )}
           </TabsContent>
 
