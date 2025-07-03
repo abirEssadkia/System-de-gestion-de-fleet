@@ -81,6 +81,129 @@ export type Database = {
         }
         Relationships: []
       }
+      overspeed_reports: {
+        Row: {
+          address: string | null
+          created_at: string
+          device_id: number
+          driver_name: string | null
+          duration_minutes: number | null
+          id: number
+          latitude: number
+          longitude: number
+          report_date: string
+          server_time: string
+          speed: number
+          speed_limit: number | null
+          vehicle_name: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          device_id: number
+          driver_name?: string | null
+          duration_minutes?: number | null
+          id?: number
+          latitude: number
+          longitude: number
+          report_date: string
+          server_time: string
+          speed: number
+          speed_limit?: number | null
+          vehicle_name?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          device_id?: number
+          driver_name?: string | null
+          duration_minutes?: number | null
+          id?: number
+          latitude?: number
+          longitude?: number
+          report_date?: string
+          server_time?: string
+          speed?: number
+          speed_limit?: number | null
+          vehicle_name?: string | null
+        }
+        Relationships: []
+      }
+      positions: {
+        Row: {
+          address: string | null
+          created_at: string
+          device_id: number
+          distance: number | null
+          id: number
+          latitude: number
+          longitude: number
+          server_time: string
+          speed: number | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          device_id: number
+          distance?: number | null
+          id?: number
+          latitude: number
+          longitude: number
+          server_time?: string
+          speed?: number | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          device_id?: number
+          distance?: number | null
+          id?: number
+          latitude?: number
+          longitude?: number
+          server_time?: string
+          speed?: number | null
+        }
+        Relationships: []
+      }
+      route_reports: {
+        Row: {
+          alarm: string | null
+          created_at: string
+          device_id: number
+          distance: number | null
+          id: number
+          latitude: number
+          longitude: number
+          server_time: string
+          stop_time: number | null
+          total_distance: number | null
+        }
+        Insert: {
+          alarm?: string | null
+          created_at?: string
+          device_id: number
+          distance?: number | null
+          id?: number
+          latitude: number
+          longitude: number
+          server_time?: string
+          stop_time?: number | null
+          total_distance?: number | null
+        }
+        Update: {
+          alarm?: string | null
+          created_at?: string
+          device_id?: number
+          distance?: number | null
+          id?: number
+          latitude?: number
+          longitude?: number
+          server_time?: string
+          stop_time?: number | null
+          total_distance?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
